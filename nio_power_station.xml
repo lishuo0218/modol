@@ -1,0 +1,595 @@
+<mujoco model="nio_power_station">
+  <statistic center="0 0 1.5" extent="10.0"/>
+
+  <visual>
+    <!-- 3. 光照响应优化: Improved Lighting Quality -->
+    <!-- Increased shadow quality and resolution settings if supported by viewer -->
+    <headlight diffuse="0.4 0.4 0.4" ambient="0.2 0.2 0.2" specular="0.1 0.1 0.1"/>
+    <rgba haze="0.15 0.25 0.35 1"/>
+    <global azimuth="-120" elevation="-20" offwidth="1920" offheight="1080"/>
+    <quality shadowsize="4096" offsamples="8"/> <!-- Enable high-res shadows and MSAA -->
+    <map shadowclip="0.5" shadowscale="0.5"/>
+  </visual>
+
+  <asset>
+    <!-- Environment Assets -->
+    <texture type="skybox" builtin="gradient" rgb1="0.3 0.5 0.7" rgb2="0 0 0" width="512" height="3072"/>
+    <texture type="2d" name="groundplane" builtin="checker" mark="edge" rgb1="0.2 0.3 0.4" rgb2="0.1 0.2 0.3"
+      markrgb="0.8 0.8 0.8" width="300" height="300"/>
+    
+    <!-- 1. 材质系统升级: PBR-inspired Material Calibration -->
+    <!-- MuJoCo Material Model: 
+         reflectance ~= Metallic/Specular intensity
+         shininess ~= 1.0 / Roughness (High shininess = Low roughness)
+         rgba ~= Albedo
+    -->
+
+    <material name="groundplane" texture="groundplane" texuniform="true" texrepeat="5 5" reflectance="0.1" shininess="0.1" specular="0.1"/>
+
+    <!-- Metals (Silver/Chrome) -->
+    <!-- High reflectance (0.8+), High specular (1.0), High shininess (0.8+) -->
+    <material name="mat_wall_silver" rgba="0.9 0.9 0.92 1" reflectance="0.7" shininess="0.8" specular="1.0"/>
+    <material name="mat_metal_grey" rgba="0.5 0.5 0.55 1" reflectance="0.6" shininess="0.6" specular="0.8"/>
+    <material name="mat_metal_plate" rgba="0.6 0.6 0.65 1" reflectance="0.5" shininess="0.7" specular="0.6"/> <!-- Checker plate simulation -->
+    
+    <!-- Dielectrics (Plastics/Paints/Matte) -->
+    <!-- Low reflectance (0.1-0.3), Moderate specular, Variable shininess -->
+    <material name="mat_frame_black" rgba="0.1 0.1 0.12 1" reflectance="0.1" shininess="0.3" specular="0.3"/> <!-- Matte black metal -->
+    <material name="mat_interior_dark" rgba="0.15 0.15 0.15 1" reflectance="0.05" shininess="0.1" specular="0.1"/> <!-- Dark matte plastic -->
+    <material name="mat_wall_dark_grey" rgba="0.2 0.2 0.22 1" reflectance="0.1" shininess="0.2" specular="0.2"/>
+    
+    <!-- Glass (Transparent) -->
+    <material name="mat_glass" rgba="0.6 0.7 0.8 0.3" reflectance="0.5" shininess="0.95" specular="1.0"/>
+    
+    <!-- Emissive Materials (Lighting) -->
+    <material name="mat_light_strip" rgba="0.9 0.9 1.0 1" emission="1.0"/>
+    <material name="mat_nio_blue_glow" rgba="0.0 0.8 1.0 1" emission="0.8"/>
+    <material name="mat_screen_glow" rgba="0.2 0.6 1.0 1" emission="0.6"/>
+    <material name="mat_light_green" rgba="0 1 0 1" emission="1.0"/>
+    <material name="mat_light_red" rgba="1 0 0 1" emission="1.0"/>
+    <material name="mat_lcd_display" rgba="0.1 0.1 0.2 1" emission="0.4"/>
+    <material name="mat_text_white" rgba="1 1 1 1" emission="0.5"/>
+
+    <!-- Functional Colors -->
+    <material name="mat_warning_yellow" rgba="0.95 0.7 0.05 1" reflectance="0.2" shininess="0.4" specular="0.2"/>
+    <material name="mat_battery_pack" rgba="0.15 0.15 0.15 1" reflectance="0.2" shininess="0.5" specular="0.4"/>
+    <material name="mat_floor_concrete" rgba="0.4 0.4 0.42 1" reflectance="0.1" shininess="0.1" specular="0.1"/> <!-- Rough concrete -->
+    <material name="mat_door_seam" rgba="0.02 0.02 0.02 1" reflectance="0.0"/>
+    
+    <!-- Mechanical Parts -->
+    <material name="mat_mechanical_blue" rgba="0.05 0.2 0.5 1" reflectance="0.4" shininess="0.6" specular="0.6"/> <!-- Painted metal -->
+    <material name="mat_roller_yellow" rgba="0.9 0.7 0.1 1" reflectance="0.3" shininess="0.5" specular="0.4"/> <!-- Hard plastic/metal -->
+    <material name="mat_lidar_window" rgba="0.05 0.05 0.05 1" reflectance="0.2" shininess="0.9" specular="0.8"/> <!-- Glossy black plastic -->
+
+    <!-- Sinopec Materials - Calibrated -->
+    <material name="mat_sinopec_red" rgba="0.85 0.1 0.1 1" reflectance="0.3" shininess="0.7" specular="0.5"/> <!-- Glossy plastic/metal -->
+    <material name="mat_sinopec_white" rgba="0.92 0.92 0.92 1" reflectance="0.4" shininess="0.6" specular="0.5"/>
+    <material name="mat_pump_island" rgba="0.2 0.2 0.2 1" reflectance="0.1" shininess="0.2" specular="0.2"/> <!-- Matte -->
+    <material name="mat_pump_screen" rgba="0.05 0.05 0.15 1" emission="0.3"/>
+    <material name="mat_hose_black" rgba="0.1 0.1 0.1 1" reflectance="0.05" shininess="0.2" specular="0.1"/> <!-- Rubber -->
+    <material name="mat_hose_nozzle_green" rgba="0.0 0.5 0.0 1" reflectance="0.2" shininess="0.4" specular="0.3"/>
+    <material name="mat_hose_nozzle_red" rgba="0.7 0.0 0.0 1" reflectance="0.2" shininess="0.4" specular="0.3"/>
+    <material name="mat_hose_nozzle_yellow" rgba="0.9 0.8 0.0 1" reflectance="0.2" shininess="0.4" specular="0.3"/>
+    <material name="mat_pump_panel_grey" rgba="0.6 0.6 0.65 1" reflectance="0.3" shininess="0.4" specular="0.3"/>
+    
+    <!-- Classroom Materials -->
+    <material name="mat_class_wall_white" rgba="0.95 0.95 0.95 1" reflectance="0.1" shininess="0.1" specular="0.1"/>
+    <material name="mat_class_floor_wood" rgba="0.6 0.4 0.25 1" reflectance="0.1" shininess="0.2" specular="0.1"/>
+    <material name="mat_blackboard" rgba="0.1 0.25 0.15 1" reflectance="0.05" shininess="0.1" specular="0.1"/>
+    <material name="mat_desk_top" rgba="0.8 0.7 0.5 1" reflectance="0.2" shininess="0.3" specular="0.2"/>
+    <material name="mat_chair_blue" rgba="0.2 0.3 0.5 1" reflectance="0.1" shininess="0.3" specular="0.2"/>
+    <material name="mat_podium" rgba="0.4 0.25 0.15 1" reflectance="0.2" shininess="0.3" specular="0.2"/>
+    <material name="mat_window_glass" rgba="0.7 0.8 0.9 0.2" reflectance="0.3" shininess="0.9" specular="0.8"/>
+  </asset>
+
+  <worldbody>
+    <!-- 3. 光照响应优化: Enhanced Lighting -->
+    <!-- Main directional light (Sun) with Shadows enabled -->
+    <light pos="5 -5 10" dir="-0.5 0.5 -1" directional="true" castshadow="true" diffuse="0.8 0.8 0.8" specular="0.3 0.3 0.3"/>
+    
+    <!-- Fill light (Skylight approximation) -->
+    <light pos="-5 5 10" dir="0.5 -0.5 -1" directional="true" castshadow="false" diffuse="0.3 0.3 0.4" specular="0.0 0.0 0.0"/>
+
+    <!-- Ground Markings -->
+    <body name="floor_markings" pos="0 0 0.01">
+        <!-- Entrance Arrow 1 -->
+        <body name="arrow_ent_1" pos="9 0 0">
+            <geom name="a1_stem" type="box" size="0.6 0.1 0.001" material="mat_text_white"/>
+            <geom name="a1_head_l" type="box" size="0.3 0.08 0.001" pos="-0.4 0.2 0" euler="0 0 45" material="mat_text_white"/>
+            <geom name="a1_head_r" type="box" size="0.3 0.08 0.001" pos="-0.4 -0.2 0" euler="0 0 -45" material="mat_text_white"/>
+        </body>
+        <!-- Entrance Arrow 2 -->
+        <body name="arrow_ent_2" pos="11 0 0">
+            <geom name="a2_stem" type="box" size="0.6 0.1 0.001" material="mat_text_white"/>
+            <geom name="a2_head_l" type="box" size="0.3 0.08 0.001" pos="-0.4 0.2 0" euler="0 0 45" material="mat_text_white"/>
+            <geom name="a2_head_r" type="box" size="0.3 0.08 0.001" pos="-0.4 -0.2 0" euler="0 0 -45" material="mat_text_white"/>
+        </body>
+        
+        <!-- Parking Slot Lines (Side) -->
+        <geom name="slot_line_1" type="box" size="0.05 2.5 0.001" pos="8 4.0 0" material="mat_text_white"/>
+        <geom name="slot_line_2" type="box" size="0.05 2.5 0.001" pos="11 4.0 0" material="mat_text_white"/>
+        <geom name="slot_line_h" type="box" size="1.5 0.05 0.001" pos="9.5 6.5 0" material="mat_text_white"/>
+    </body>
+
+    <geom name="floor" size="0 0 0.05" type="plane" material="groundplane"/>
+
+    <!-- ================= NIO Power Swap Station Gen 3 Model ================= -->
+    <body name="station_base" pos="0 0 0">
+      
+      <!-- 1. Foundation / Floor -->
+      <geom name="floor_slab" type="box" size="5.25 3.1 0.1" pos="0 0 0.1" material="mat_floor_concrete"/>
+      <!-- Yellow safety stripes on floor -->
+      <geom name="safety_stripe_l" type="box" size="3.5 0.05 0.001" pos="1.5 1.3 0.201" material="mat_warning_yellow"/>
+      <geom name="safety_stripe_r" type="box" size="3.5 0.05 0.001" pos="1.5 -1.3 0.201" material="mat_warning_yellow"/>
+      
+      <!-- 2. Main Structure Shell (Parking Bay) -->
+      <!-- Cast Shadows Enabled for Main Structures -->
+      <!-- Left Wall (Partition) - Panelized for realism -->
+      <body name="wall_left_group" pos="0 3.2 1.65">
+        <!-- Panel 1 (Front) -->
+        <geom name="wall_panel_1" type="box" size="1.3 0.1 1.55" pos="3.9 0 0" material="mat_wall_dark_grey"/>
+        <geom name="seam_1" type="box" size="0.01 0.105 1.55" pos="2.55 0 0" material="mat_frame_black"/>
+        
+        <!-- Panel 2 -->
+        <geom name="wall_panel_2" type="box" size="1.3 0.1 1.55" pos="1.2 0 0" material="mat_wall_dark_grey"/>
+        <geom name="seam_2" type="box" size="0.01 0.105 1.55" pos="-0.15 0 0" material="mat_frame_black"/>
+        
+        <!-- Panel 3 -->
+        <geom name="wall_panel_3" type="box" size="1.3 0.1 1.55" pos="-1.5 0 0" material="mat_wall_dark_grey"/>
+        <geom name="seam_3" type="box" size="0.01 0.105 1.55" pos="-2.85 0 0" material="mat_frame_black"/>
+        
+        <!-- Panel 4 (Back) -->
+        <geom name="wall_panel_4" type="box" size="1.2 0.1 1.55" pos="-4.1 0 0" material="mat_wall_dark_grey"/>
+
+        <!-- QR Code / Decals on Panel 1 -->
+        <geom name="decal_qr1" type="box" size="0.15 0.11 0.15" pos="4.0 0 0.2" material="mat_wall_silver"/>
+        <geom name="decal_qr2" type="box" size="0.15 0.11 0.15" pos="3.6 0 0.2" material="mat_wall_silver"/>
+        
+        <!-- Info Text Lines -->
+        <geom name="text_line_1" type="box" size="0.4 0.11 0.02" pos="3.8 0 0.5" material="mat_wall_silver"/>
+        <geom name="text_line_2" type="box" size="0.3 0.11 0.02" pos="3.8 0 0.4" material="mat_wall_silver"/>
+      </body>
+      
+      <geom name="wall_right" type="box" size="5.25 0.1 1.55" pos="0 -3.2 1.65" material="mat_wall_silver"/>
+      <!-- Back Frame (Exit) -->
+      <body name="back_frame" pos="-5.35 0 1.65">
+        <geom name="b_frame_top" type="box" size="0.2 3.2 0.3" pos="0 0 1.25" material="mat_frame_black"/>
+        <geom name="b_frame_left" type="box" size="0.2 0.4 1.55" pos="0 2.8 0" material="mat_frame_black"/>
+        <geom name="b_frame_right" type="box" size="0.2 0.4 1.55" pos="0 -2.8 0" material="mat_frame_black"/>
+        
+
+      </body>
+      
+      <geom name="roof" type="box" size="5.35 3.2 0.1" pos="0 0 3.2" material="mat_frame_black"/>
+      
+      <!-- Front Frame -->
+      <body name="front_frame" pos="5.25 0 1.65">
+        <geom name="frame_top" type="box" size="0.2 3.2 0.3" pos="0 0 1.25" material="mat_frame_black"/>
+        <geom name="frame_left" type="box" size="0.2 0.4 1.55" pos="0 2.8 0" material="mat_frame_black"/>
+        <geom name="frame_right" type="box" size="0.2 0.4 1.55" pos="0 -2.8 0" material="mat_frame_black"/>
+        <geom name="screen_panel" type="box" size="0.21 0.3 0.6" pos="0 -2.8 0" material="mat_glass"/>
+        
+        <!-- Entrance Lights -->
+        <geom name="light_green" type="cylinder" size="0.05 0.02" pos="0.21 2.8 1.0" euler="0 90 0" material="mat_light_green"/>
+        <geom name="light_red" type="cylinder" size="0.05 0.02" pos="0.21 2.8 0.85" euler="0 90 0" material="mat_light_red"/>
+        
+        <!-- NIO Power Text (Simulated with thin boxes) -->
+        <geom name="text_nio" type="box" size="0.01 0.6 0.08" pos="0.21 1.5 1.3" material="mat_text_white"/>
+        
+        <!-- Blue Neon Slogan: "车电分离..." -->
+        <body name="neon_sign_top" pos="0.1 0 1.8">
+             <geom name="neon_glow_strip" type="box" size="0.05 2.5 0.1" material="mat_nio_blue_glow"/>
+             <!-- Simulated Characters (blocks) -->
+             <geom name="char_1" type="box" size="0.06 0.1 0.08" pos="0 2.0 0" material="mat_nio_blue_glow"/>
+             <geom name="char_2" type="box" size="0.06 0.1 0.08" pos="0 1.6 0" material="mat_nio_blue_glow"/>
+             <geom name="char_3" type="box" size="0.06 0.1 0.08" pos="0 1.2 0" material="mat_nio_blue_glow"/>
+             <geom name="char_4" type="box" size="0.06 0.1 0.08" pos="0 0.8 0" material="mat_nio_blue_glow"/>
+             
+             <geom name="char_5" type="box" size="0.06 0.1 0.08" pos="0 0.0 0" material="mat_nio_blue_glow"/>
+             <geom name="char_6" type="box" size="0.06 0.1 0.08" pos="0 -0.4 0" material="mat_nio_blue_glow"/>
+             <geom name="char_7" type="box" size="0.06 0.1 0.08" pos="0 -0.8 0" material="mat_nio_blue_glow"/>
+             
+             <geom name="char_8" type="box" size="0.06 0.1 0.08" pos="0 -1.6 0" material="mat_nio_blue_glow"/>
+             <geom name="char_9" type="box" size="0.06 0.1 0.08" pos="0 -2.0 0" material="mat_nio_blue_glow"/>
+        </body>
+        
+        <!-- Card Reader / Intercom on Left Frame Pillar -->
+        <geom name="intercom_box" type="box" size="0.05 0.1 0.2" pos="0.2 2.8 0" material="mat_frame_black"/>
+        <geom name="intercom_screen" type="box" size="0.01 0.08 0.08" pos="0.25 2.8 0.05" material="mat_lcd_display"/>
+      </body>
+
+      <!-- Interior Details -->
+      <!-- driver_screen moved to back_frame -->
+
+      <body name="wall_details_right" pos="0 -3.15 2.0">
+          <geom name="control_box_1" type="box" size="0.3 0.05 0.4" pos="1.0 0 0" material="mat_metal_grey"/>
+          <geom name="control_box_2" type="box" size="0.2 0.05 0.3" pos="2.0 0 0.2" material="mat_metal_grey"/>
+          <geom name="cable_tray" type="box" size="5.0 0.02 0.05" pos="0 0 0.8" material="mat_frame_black"/>
+      </body>
+
+      <body name="swap_platform" pos="1.5 0 0.2">
+        <!-- Improved Metal Plate Floor -->
+        <geom name="platform_base_l" type="box" size="3.5 0.6 0.05" pos="0 1.2 0" material="mat_metal_plate"/>
+        <geom name="platform_base_r" type="box" size="3.5 0.6 0.05" pos="0 -1.2 0" material="mat_metal_plate"/>
+        <geom name="platform_center_front" type="box" size="1.0 1.5 0.05" pos="2.5 0 0" material="mat_metal_plate"/>
+        <geom name="platform_center_back" type="box" size="1.0 1.5 0.05" pos="-2.5 0 0" material="mat_metal_plate"/>
+        
+        <!-- Yellow Guide Lines on Platform -->
+        <geom name="guide_line_l" type="box" size="3.5 0.05 0.001" pos="0 0.7 0.051" material="mat_warning_yellow"/>
+        <geom name="guide_line_r" type="box" size="3.5 0.05 0.001" pos="0 -0.7 0.051" material="mat_warning_yellow"/>
+
+        <geom name="pit_mechanism_frame" type="box" size="1.5 0.8 0.02" pos="0 0 -0.05" material="mat_mechanical_blue"/>
+
+        <body name="rollers_array_left" pos="0 1.1 0.08">
+           <geom name="roller_frame_l" type="box" size="2.5 0.1 0.02" pos="0 0 -0.02" material="mat_frame_black"/>
+           <geom name="r_l_1" type="cylinder" size="0.04 0.2" pos="2.0 0 0.02" euler="90 0 0" material="mat_wall_silver"/>
+           <geom name="r_l_2" type="cylinder" size="0.04 0.2" pos="1.5 0 0.02" euler="90 0 0" material="mat_wall_silver"/>
+           <geom name="r_l_3" type="cylinder" size="0.04 0.2" pos="1.0 0 0.02" euler="90 0 0" material="mat_wall_silver"/>
+           <geom name="r_l_4" type="cylinder" size="0.04 0.2" pos="0.5 0 0.02" euler="90 0 0" material="mat_wall_silver"/>
+           <geom name="r_l_5" type="cylinder" size="0.04 0.2" pos="0.0 0 0.02" euler="90 0 0" material="mat_wall_silver"/>
+           <geom name="r_l_6" type="cylinder" size="0.04 0.2" pos="-0.5 0 0.02" euler="90 0 0" material="mat_wall_silver"/>
+           <geom name="r_l_7" type="cylinder" size="0.04 0.2" pos="-1.0 0 0.02" euler="90 0 0" material="mat_wall_silver"/>
+           <geom name="r_l_8" type="cylinder" size="0.04 0.2" pos="-1.5 0 0.02" euler="90 0 0" material="mat_wall_silver"/>
+           <geom name="r_l_9" type="cylinder" size="0.04 0.2" pos="-2.0 0 0.02" euler="90 0 0" material="mat_wall_silver"/>
+        </body>
+
+        <body name="rollers_array_right" pos="0 -1.1 0.08">
+           <geom name="roller_frame_r" type="box" size="2.5 0.1 0.02" pos="0 0 -0.02" material="mat_frame_black"/>
+           <geom name="r_r_1" type="cylinder" size="0.04 0.2" pos="2.0 0 0.02" euler="90 0 0" material="mat_wall_silver"/>
+           <geom name="r_r_2" type="cylinder" size="0.04 0.2" pos="1.5 0 0.02" euler="90 0 0" material="mat_wall_silver"/>
+           <geom name="r_r_3" type="cylinder" size="0.04 0.2" pos="1.0 0 0.02" euler="90 0 0" material="mat_wall_silver"/>
+           <geom name="r_r_4" type="cylinder" size="0.04 0.2" pos="0.5 0 0.02" euler="90 0 0" material="mat_wall_silver"/>
+           <geom name="r_r_5" type="cylinder" size="0.04 0.2" pos="0.0 0 0.02" euler="90 0 0" material="mat_wall_silver"/>
+           <geom name="r_r_6" type="cylinder" size="0.04 0.2" pos="-0.5 0 0.02" euler="90 0 0" material="mat_wall_silver"/>
+           <geom name="r_r_7" type="cylinder" size="0.04 0.2" pos="-1.0 0 0.02" euler="90 0 0" material="mat_wall_silver"/>
+           <geom name="r_r_8" type="cylinder" size="0.04 0.2" pos="-1.5 0 0.02" euler="90 0 0" material="mat_wall_silver"/>
+           <geom name="r_r_9" type="cylinder" size="0.04 0.2" pos="-2.0 0 0.02" euler="90 0 0" material="mat_wall_silver"/>
+        </body>
+        
+        <geom name="v_groove_l" type="box" size="2.0 0.05 0.03" pos="0 0.8 0.05" material="mat_mechanical_blue"/>
+        <geom name="v_groove_r" type="box" size="2.0 0.05 0.03" pos="0 -0.8 0.05" material="mat_mechanical_blue"/>
+        
+        <body name="rgv_robot" pos="0 0 -0.15">
+            <geom name="rgv_chassis" type="box" size="1.0 0.8 0.1" material="mat_mechanical_blue"/> 
+            <geom name="rgv_wheel_fl" type="cylinder" size="0.1 0.05" pos="0.8 0.6 -0.05" euler="90 0 0" material="mat_warning_yellow"/>
+            <geom name="rgv_wheel_fr" type="cylinder" size="0.1 0.05" pos="0.8 -0.6 -0.05" euler="90 0 0" material="mat_warning_yellow"/>
+            <geom name="rgv_wheel_bl" type="cylinder" size="0.1 0.05" pos="-0.8 0.6 -0.05" euler="90 0 0" material="mat_warning_yellow"/>
+            <geom name="rgv_wheel_br" type="cylinder" size="0.1 0.05" pos="-0.8 -0.6 -0.05" euler="90 0 0" material="mat_warning_yellow"/>
+            <geom name="rgv_lift_base" type="cylinder" size="0.4 0.05" pos="0 0 0.1" material="mat_wall_silver"/>
+            <geom name="rgv_lift_top" type="box" size="0.6 0.4 0.02" pos="0 0 0.15" material="mat_warning_yellow"/>
+        </body>
+      </body>
+
+      <!-- Interior Lights - High Density LED Array -->
+      <light name="interior_light_1" pos="0 0 2.8" dir="0 0 -1" attenuation="0.5 0.5 0.5" diffuse="0.8 0.8 1.0"/>
+      
+      <!-- Center Array -->
+      <geom name="strip_light_c1" type="box" size="4.0 0.02 0.02" pos="0 0 3.1" material="mat_light_strip"/>
+      <geom name="strip_light_c2" type="box" size="4.0 0.02 0.02" pos="0 0.2 3.1" material="mat_light_strip"/>
+      <geom name="strip_light_c3" type="box" size="4.0 0.02 0.02" pos="0 -0.2 3.1" material="mat_light_strip"/>
+      
+      <!-- Left Array -->
+      <geom name="strip_light_l1" type="box" size="4.0 0.02 0.02" pos="0 1.2 3.1" material="mat_light_strip"/>
+      <geom name="strip_light_l2" type="box" size="4.0 0.02 0.02" pos="0 1.4 3.1" material="mat_light_strip"/>
+      <geom name="strip_light_l3" type="box" size="4.0 0.02 0.02" pos="0 1.6 3.1" material="mat_light_strip"/>
+      
+      <!-- Right Array -->
+      <geom name="strip_light_r1" type="box" size="4.0 0.02 0.02" pos="0 -1.2 3.1" material="mat_light_strip"/>
+      <geom name="strip_light_r2" type="box" size="4.0 0.02 0.02" pos="0 -1.4 3.1" material="mat_light_strip"/>
+      <geom name="strip_light_r3" type="box" size="4.0 0.02 0.02" pos="0 -1.6 3.1" material="mat_light_strip"/>
+
+      <!-- 4. Exterior Details -->
+      
+      <!-- Enhanced Ramp with Guide Lines (Entrance) -->
+      <body name="ramp" pos="6.25 0 0.1">
+        <!-- Main Ramp Plate -->
+        <geom name="ramp_geom" type="box" size="1.0 3.0 0.1" pos="0 0 -0.05" euler="0 10 0" material="mat_metal_plate"/>
+        <!-- Yellow Guide Lines on Ramp -->
+        <geom name="ramp_guide_l" type="box" size="1.0 0.05 0.001" pos="0 0.7 0.06" euler="0 10 0" material="mat_warning_yellow"/>
+        <geom name="ramp_guide_r" type="box" size="1.0 0.05 0.001" pos="0 -0.7 0.06" euler="0 10 0" material="mat_warning_yellow"/>
+        <!-- Speed Bumps / Wheel Stops on Ramp -->
+        <geom name="ramp_bump_1" type="box" size="0.1 3.0 0.02" pos="0.8 0 0.06" euler="0 10 0" material="mat_warning_yellow"/>
+        <geom name="ramp_bump_2" type="box" size="0.1 3.0 0.02" pos="-0.8 0 0.06" euler="0 10 0" material="mat_warning_yellow"/>
+      </body>
+
+      <!-- Exit Ramp -->
+      <body name="exit_ramp" pos="-6.25 0 0.1">
+        <!-- Main Ramp Plate -->
+        <geom name="e_ramp_geom" type="box" size="1.0 3.0 0.1" pos="0 0 -0.05" euler="0 -10 0" material="mat_metal_plate"/>
+        <!-- Yellow Guide Lines on Ramp -->
+        <geom name="e_ramp_guide_l" type="box" size="1.0 0.05 0.001" pos="0 0.7 0.06" euler="0 -10 0" material="mat_warning_yellow"/>
+        <geom name="e_ramp_guide_r" type="box" size="1.0 0.05 0.001" pos="0 -0.7 0.06" euler="0 -10 0" material="mat_warning_yellow"/>
+      </body>
+
+      <body name="bollards" pos="7.5 0 0">
+        <!-- Black Bollards with Reflective Strip -->
+        <body name="b_l1" pos="0 2.5 0.5">
+            <geom name="b_l1_main" type="cylinder" size="0.08 0.5" material="mat_frame_black"/>
+            <geom name="b_l1_strip" type="cylinder" size="0.082 0.05" pos="0 0 0.2" material="mat_wall_silver"/>
+        </body>
+        <body name="b_l2" pos="0 2.0 0.5">
+            <geom name="b_l2_main" type="cylinder" size="0.08 0.5" material="mat_frame_black"/>
+            <geom name="b_l2_strip" type="cylinder" size="0.082 0.05" pos="0 0 0.2" material="mat_wall_silver"/>
+        </body>
+        <body name="b_r1" pos="0 -2.5 0.5">
+            <geom name="b_r1_main" type="cylinder" size="0.08 0.5" material="mat_frame_black"/>
+            <geom name="b_r1_strip" type="cylinder" size="0.082 0.05" pos="0 0 0.2" material="mat_wall_silver"/>
+        </body>
+        <body name="b_r2" pos="0 -2.0 0.5">
+            <geom name="b_r2_main" type="cylinder" size="0.08 0.5" material="mat_frame_black"/>
+            <geom name="b_r2_strip" type="cylinder" size="0.082 0.05" pos="0 0 0.2" material="mat_wall_silver"/>
+        </body>
+      </body>
+
+      <!-- Detailed Roof Sensor Towers (Corner Mounts) -->
+      <body name="sensor_tower_left" pos="5.1 1.6 3.3">
+        <geom name="st_base_l" type="cylinder" size="0.04 0.15" pos="0 0 0.15" material="mat_frame_black"/>
+        <geom name="st_bar_l" type="box" size="0.03 0.25 0.03" pos="0 0 0.3" material="mat_wall_silver"/>
+        <geom name="st_cam_l1" type="box" size="0.04 0.03 0.04" pos="0 0.2 0.35" material="mat_frame_black"/>
+        <geom name="st_cam_l1_lens" type="cylinder" size="0.015 0.01" pos="0.03 0.2 0.35" euler="0 90 0" material="mat_glass"/>
+        <geom name="st_cam_l2" type="box" size="0.04 0.03 0.04" pos="0 -0.2 0.35" material="mat_frame_black"/>
+        <geom name="st_cam_l2_lens" type="cylinder" size="0.015 0.01" pos="0.03 -0.2 0.35" euler="0 90 0" material="mat_glass"/>
+        <geom name="st_lidar_l" type="cylinder" size="0.05 0.04" pos="0 0 0.38" material="mat_lidar_window"/>
+      </body>
+
+      <body name="sensor_tower_right" pos="5.1 -1.6 3.3">
+        <geom name="st_base_r" type="cylinder" size="0.04 0.15" pos="0 0 0.15" material="mat_frame_black"/>
+        <geom name="st_bar_r" type="box" size="0.03 0.25 0.03" pos="0 0 0.3" material="mat_wall_silver"/>
+        <geom name="st_cam_r1" type="box" size="0.04 0.03 0.04" pos="0 0.2 0.35" material="mat_frame_black"/>
+        <geom name="st_cam_r1_lens" type="cylinder" size="0.015 0.01" pos="0.03 0.2 0.35" euler="0 90 0" material="mat_glass"/>
+        <geom name="st_cam_r2" type="box" size="0.04 0.03 0.04" pos="0 -0.2 0.35" material="mat_frame_black"/>
+        <geom name="st_cam_r2_lens" type="cylinder" size="0.015 0.01" pos="0.03 -0.2 0.35" euler="0 90 0" material="mat_glass"/>
+        <geom name="st_lidar_r" type="cylinder" size="0.05 0.04" pos="0 0 0.38" material="mat_lidar_window"/>
+      </body>
+
+      <body name="wheel_stoppers" pos="-1.5 0 0.25">
+         <geom name="stop_l" type="box" size="0.1 0.3 0.1" pos="0 1.1 0" material="mat_warning_yellow"/>
+         <geom name="stop_r" type="box" size="0.1 0.3 0.1" pos="0 -1.1 0" material="mat_warning_yellow"/>
+      </body>
+
+      <!-- ================= "Other Half": Power Module / Storage Unit ================= -->
+      <body name="storage_unit" pos="0 5.3 0">
+        <geom name="store_floor" type="box" size="5.25 2.1 0.1" pos="0 0 0.1" material="mat_floor_concrete"/>
+        <geom name="store_roof" type="box" size="5.35 2.1 0.1" pos="0 0 3.2" material="mat_frame_black"/>
+        <body name="store_wall_left_group" pos="0 2.0 1.65">
+             <geom name="swl_p1" type="box" size="1.0 0.1 1.55" pos="4.2 0 0" material="mat_wall_silver"/>
+             <geom name="swl_s1" type="box" size="0.01 0.105 1.55" pos="3.15 0 0" material="mat_frame_black"/>
+             <geom name="swl_p2" type="box" size="1.0 0.1 1.55" pos="2.1 0 0" material="mat_wall_silver"/>
+             <geom name="swl_s2" type="box" size="0.01 0.105 1.55" pos="1.05 0 0" material="mat_frame_black"/>
+             <geom name="swl_p3" type="box" size="1.0 0.1 1.55" pos="0 0 0" material="mat_wall_silver"/>
+             <geom name="swl_s3" type="box" size="0.01 0.105 1.55" pos="-1.05 0 0" material="mat_frame_black"/>
+             <geom name="swl_p4" type="box" size="1.0 0.1 1.55" pos="-2.1 0 0" material="mat_wall_silver"/>
+             <geom name="swl_s4" type="box" size="0.01 0.105 1.55" pos="-3.15 0 0" material="mat_frame_black"/>
+             <geom name="swl_p5" type="box" size="1.0 0.1 1.55" pos="-4.2 0 0" material="mat_wall_silver"/>
+        </body>
+        <!-- Storage Unit Front Wall - Panelized with Large Logo -->
+        <body name="store_front_group" pos="5.25 0 1.65">
+             <geom name="sf_panel_1" type="box" size="0.1 0.65 1.55" pos="0 1.35 0" material="mat_wall_silver"/>
+             <geom name="sf_seam_1" type="box" size="0.105 0.01 1.55" pos="0 0.69 0" material="mat_frame_black"/>
+             <geom name="sf_panel_2" type="box" size="0.1 0.65 1.55" pos="0 0.03 0" material="mat_wall_silver"/>
+             <geom name="sf_seam_2" type="box" size="0.105 0.01 1.55" pos="0 -0.63 0" material="mat_frame_black"/>
+             <geom name="sf_panel_3" type="box" size="0.1 0.65 1.55" pos="0 -1.29 0" material="mat_wall_silver"/>
+
+             <!-- Large NIO Logo (Sky and Earth) -->
+             <body name="nio_logo_large" pos="0.11 0 0.5" euler="0 0 90">
+                  <!-- Sky (Arch) -->
+                  <geom name="logo_sky_l" type="cylinder" size="0.3 0.05" pos="0 0.2 0" material="mat_text_white"/> 
+                  <geom name="logo_sky_mask" type="box" size="0.35 0.2 0.06" pos="0 0 0" material="mat_wall_silver"/> <!-- Mask lower half -->
+                  <!-- Earth (Chevron/Line) -->
+                  <geom name="logo_earth_l" type="box" size="0.3 0.04 0.05" pos="0 -0.2 0" material="mat_text_white"/>
+             </body>
+        </body>
+        
+        <!-- Slogan: "Make Charging More Convenient Than Refueling" -->
+        <body name="slogan_group" pos="5.36 0 2.2" euler="0 0 90">
+             <!-- Simulated Chinese Characters -->
+             <geom name="sl_1" type="box" size="0.15 0.01 0.15" pos="-1.2 0 0" material="mat_text_white"/> <!-- 让 -->
+             <geom name="sl_2" type="box" size="0.15 0.01 0.15" pos="-0.8 0 0" material="mat_text_white"/> <!-- 加 -->
+             <geom name="sl_3" type="box" size="0.15 0.01 0.15" pos="-0.4 0 0" material="mat_text_white"/> <!-- 电 -->
+             <geom name="sl_4" type="box" size="0.15 0.01 0.15" pos="0.0 0 0" material="mat_text_white"/> <!-- 比 -->
+             <geom name="sl_5" type="box" size="0.15 0.01 0.15" pos="0.4 0 0" material="mat_text_white"/> <!-- 加 -->
+             <geom name="sl_6" type="box" size="0.15 0.01 0.15" pos="0.8 0 0" material="mat_text_white"/> <!-- 油 -->
+             <geom name="sl_7" type="box" size="0.15 0.01 0.15" pos="1.2 0 0" material="mat_text_white"/> <!-- 更 -->
+             <geom name="sl_8" type="box" size="0.15 0.01 0.15" pos="1.6 0 0" material="mat_text_white"/> <!-- 方 -->
+             <geom name="sl_9" type="box" size="0.15 0.01 0.15" pos="2.0 0 0" material="mat_text_white"/> <!-- 便 -->
+        </body>
+
+        <geom name="store_wall_back" type="box" size="0.1 2.0 1.55" pos="-5.35 0 1.65" material="mat_wall_silver"/>
+
+        <body name="service_door" pos="-5.45 0 1.2">
+            <geom name="door_panel" type="box" size="0.02 0.8 1.0" material="mat_wall_silver"/>
+            <geom name="door_handle" type="box" size="0.05 0.02 0.1" pos="0 -0.6 0" material="mat_frame_black"/>
+            <geom name="door_frame" type="box" size="0.01 0.82 1.02" pos="-0.01 0 0" material="mat_door_seam"/>
+        </body>
+        
+        <body name="vents_storage" pos="-2.0 2.06 1.0"> 
+            <geom name="vent_s1" type="box" size="0.8 0.02 0.05" pos="0 0 0.6" material="mat_frame_black"/>
+            <geom name="vent_s2" type="box" size="0.8 0.02 0.05" pos="0 0 0.4" material="mat_frame_black"/>
+            <geom name="vent_s3" type="box" size="0.8 0.02 0.05" pos="0 0 0.2" material="mat_frame_black"/>
+        </body>
+
+        <body name="logo_storage" pos="2.0 2.11 2.2" euler="90 0 0">
+             <geom name="logo_sky_s" type="cylinder" size="0.4 0.02" pos="0 0.3 0" material="mat_frame_black"/> 
+             <geom name="logo_earth_s" type="box" size="0.4 0.05 0.02" pos="0 -0.3 0" material="mat_frame_black"/>
+        </body>
+        
+        <body name="battery_rack_internal" pos="0 0 1.5">
+             <geom name="rack_structure_main" type="box" size="4.0 1.0 1.4" material="mat_interior_dark"/>
+             <geom name="pack_row_1" type="box" size="3.8 0.25 0.15" pos="0 -0.5 0" material="mat_battery_pack"/>
+             <geom name="pack_row_2" type="box" size="3.8 0.25 0.15" pos="0 0 0" material="mat_battery_pack"/>
+             <geom name="pack_row_3" type="box" size="3.8 0.25 0.15" pos="0 0.5 0" material="mat_battery_pack"/>
+             <geom name="div_1" type="box" size="0.02 1.0 1.4" pos="0 0 0" material="mat_frame_black"/>
+             <geom name="div_2" type="box" size="0.02 1.0 1.4" pos="1.0 0 0" material="mat_frame_black"/>
+             <geom name="div_3" type="box" size="0.02 1.0 1.4" pos="-1.0 0 0" material="mat_frame_black"/>
+             <geom name="div_4" type="box" size="0.02 1.0 1.4" pos="2.0 0 0" material="mat_frame_black"/>
+             <geom name="div_5" type="box" size="0.02 1.0 1.4" pos="-2.0 0 0" material="mat_frame_black"/>
+        </body>
+      </body>
+    </body>
+    
+    <!-- ================= Classroom Model ================= -->
+    <body name="classroom" pos="0 -10 0">
+        <!-- Structure -->
+        <geom name="class_floor" type="box" size="5.0 4.0 0.1" pos="0 0 0.1" material="mat_class_floor_wood"/>
+        
+        <!-- Walls -->
+        <!-- Front Wall (Blackboard side) -->
+        <geom name="class_wall_front" type="box" size="0.1 4.0 1.7" pos="4.9 0 1.8" material="mat_class_wall_white"/>
+        <!-- Back Wall with Door -->
+        <body name="class_wall_back_group" pos="-4.9 0 0">
+            <geom name="cwb_main" type="box" size="0.1 3.0 1.7" pos="0 1.0 1.8" material="mat_class_wall_white"/>
+            <geom name="cwb_small" type="box" size="0.1 0.5 1.7" pos="0 -3.5 1.8" material="mat_class_wall_white"/>
+            <geom name="cwb_header" type="box" size="0.1 0.5 0.65" pos="0 -2.5 2.85" material="mat_class_wall_white"/>
+            
+            <!-- Classroom Door -->
+            <body name="class_door" pos="0 -2.5 1.1">
+                <geom name="c_door_panel" type="box" size="0.04 0.5 1.1" material="mat_class_floor_wood"/>
+                <geom name="c_door_handle" type="box" size="0.06 0.02 0.05" pos="-0.02 0.4 0" material="mat_frame_black"/>
+                <!-- Door Frame -->
+                <geom name="cdf_top" type="box" size="0.06 0.55 0.05" pos="0 0 1.15" material="mat_frame_black"/>
+                <geom name="cdf_left" type="box" size="0.06 0.05 1.2" pos="0 0.55 0" material="mat_frame_black"/>
+                <geom name="cdf_right" type="box" size="0.06 0.05 1.2" pos="0 -0.55 0" material="mat_frame_black"/>
+            </body>
+        </body>
+        <!-- Right Wall (Solid) -->
+        <geom name="class_wall_right" type="box" size="5.0 0.1 1.7" pos="0 -3.9 1.8" material="mat_class_wall_white"/>
+        <!-- Left Wall (Windows) -->
+        <body name="class_wall_left_windows" pos="0 3.9 1.8">
+            <geom name="w_l_bottom" type="box" size="5.0 0.1 0.5" pos="0 0 -1.2" material="mat_class_wall_white"/>
+            <geom name="w_l_top" type="box" size="5.0 0.1 0.2" pos="0 0 1.5" material="mat_class_wall_white"/>
+            <geom name="w_l_pillar1" type="box" size="0.2 0.1 1.0" pos="4.8 0 0.3" material="mat_class_wall_white"/>
+            <geom name="w_l_pillar2" type="box" size="0.2 0.1 1.0" pos="1.6 0 0.3" material="mat_class_wall_white"/>
+            <geom name="w_l_pillar3" type="box" size="0.2 0.1 1.0" pos="-1.6 0 0.3" material="mat_class_wall_white"/>
+            <geom name="w_l_pillar4" type="box" size="0.2 0.1 1.0" pos="-4.8 0 0.3" material="mat_class_wall_white"/>
+            
+            <!-- Glass Panes -->
+            <geom name="window_glass_1" type="box" size="1.4 0.02 1.0" pos="3.2 0 0.3" material="mat_window_glass"/>
+            <geom name="window_glass_2" type="box" size="1.4 0.02 1.0" pos="0 0 0.3" material="mat_window_glass"/>
+            <geom name="window_glass_3" type="box" size="1.4 0.02 1.0" pos="-3.2 0 0.3" material="mat_window_glass"/>
+        </body>
+
+        <!-- Blackboard -->
+        <geom name="blackboard" type="box" size="0.02 2.0 0.8" pos="4.8 0 1.8" material="mat_blackboard"/>
+        <geom name="chalk_tray" type="box" size="0.05 2.0 0.02" pos="4.75 0 0.95" material="mat_frame_black"/>
+
+        <!-- Podium (Detailed) -->
+        <body name="podium" pos="3.5 0 0.6">
+            <geom name="pod_body" type="box" size="0.3 0.5 0.5" material="mat_podium"/>
+            <geom name="pod_top" type="box" size="0.32 0.52 0.02" pos="0 0 0.52" material="mat_podium"/>
+            <geom name="pod_base" type="box" size="0.32 0.52 0.05" pos="0 0 -0.45" material="mat_frame_black"/>
+            
+            <!-- Chalk Boxes -->
+            <body name="chalk_boxes" pos="0.2 0.35 0.56">
+                <!-- White Chalk Box -->
+                <geom name="c_box_1" type="box" size="0.04 0.06 0.02" pos="0 0 0" rgba="1 1 1 1"/>
+                <geom name="c_stick_w1" type="cylinder" size="0.004 0.02" pos="0 0.02 0.02" euler="0 90 0" rgba="0.9 0.9 0.9 1"/>
+                <geom name="c_stick_w2" type="cylinder" size="0.004 0.02" pos="0 0.0 0.02" euler="0 90 0" rgba="0.9 0.9 0.9 1"/>
+                <geom name="c_stick_w3" type="cylinder" size="0.004 0.02" pos="0 -0.02 0.02" euler="0 90 0" rgba="0.9 0.9 0.9 1"/>
+                
+                <!-- Color Chalk Box -->
+                <geom name="c_box_2" type="box" size="0.04 0.06 0.02" pos="0 -0.15 0" rgba="0.2 0.6 0.9 1"/>
+                <geom name="c_stick_c1" type="cylinder" size="0.004 0.02" pos="0 -0.13 0.02" euler="0 90 0" rgba="1 0.5 0.5 1"/>
+                <geom name="c_stick_c2" type="cylinder" size="0.004 0.02" pos="0 -0.15 0.02" euler="0 90 0" rgba="0.5 1 0.5 1"/>
+                <geom name="c_stick_c3" type="cylinder" size="0.004 0.02" pos="0 -0.17 0.02" euler="0 90 0" rgba="0.5 0.5 1 1"/>
+            </body>
+        </body>
+
+        <!-- Desks and Chairs Rows -->
+        <!-- Row 1 -->
+        <body name="desk_row_1" pos="1.5 0 0">
+             <body name="d1_l" pos="0 1.5 0">
+                 <geom name="d1_l_top" type="box" size="0.3 0.6 0.02" pos="0 0 0.8" material="mat_desk_top"/>
+                 <geom name="d1_l_leg1" type="cylinder" size="0.02 0.4" pos="0.25 0.55 0.4" material="mat_frame_black"/>
+                 <geom name="d1_l_leg2" type="cylinder" size="0.02 0.4" pos="0.25 -0.55 0.4" material="mat_frame_black"/>
+                 <geom name="d1_l_leg3" type="cylinder" size="0.02 0.4" pos="-0.25 0.55 0.4" material="mat_frame_black"/>
+                 <geom name="d1_l_leg4" type="cylinder" size="0.02 0.4" pos="-0.25 -0.55 0.4" material="mat_frame_black"/>
+                 <geom name="c1_l_seat" type="box" size="0.2 0.2 0.02" pos="-0.5 0 0.5" material="mat_chair_blue"/>
+                 <geom name="c1_l_back" type="box" size="0.02 0.2 0.2" pos="-0.7 0 0.7" material="mat_chair_blue"/>
+                 <!-- Chair Legs -->
+                 <geom name="c1_l_leg1" type="cylinder" size="0.015 0.25" pos="-0.35 0.15 0.25" material="mat_frame_black"/>
+                 <geom name="c1_l_leg2" type="cylinder" size="0.015 0.25" pos="-0.35 -0.15 0.25" material="mat_frame_black"/>
+                 <geom name="c1_l_leg3" type="cylinder" size="0.015 0.25" pos="-0.65 0.15 0.25" material="mat_frame_black"/>
+                 <geom name="c1_l_leg4" type="cylinder" size="0.015 0.25" pos="-0.65 -0.15 0.25" material="mat_frame_black"/>
+             </body>
+             <body name="d1_r" pos="0 -1.5 0">
+                 <geom name="d1_r_top" type="box" size="0.3 0.6 0.02" pos="0 0 0.8" material="mat_desk_top"/>
+                 <geom name="d1_r_leg1" type="cylinder" size="0.02 0.4" pos="0.25 0.55 0.4" material="mat_frame_black"/>
+                 <geom name="d1_r_leg2" type="cylinder" size="0.02 0.4" pos="0.25 -0.55 0.4" material="mat_frame_black"/>
+                 <geom name="d1_r_leg3" type="cylinder" size="0.02 0.4" pos="-0.25 0.55 0.4" material="mat_frame_black"/>
+                 <geom name="d1_r_leg4" type="cylinder" size="0.02 0.4" pos="-0.25 -0.55 0.4" material="mat_frame_black"/>
+                 <geom name="c1_r_seat" type="box" size="0.2 0.2 0.02" pos="-0.5 0 0.5" material="mat_chair_blue"/>
+                 <geom name="c1_r_back" type="box" size="0.02 0.2 0.2" pos="-0.7 0 0.7" material="mat_chair_blue"/>
+                 <!-- Chair Legs -->
+                 <geom name="c1_r_leg1" type="cylinder" size="0.015 0.25" pos="-0.35 0.15 0.25" material="mat_frame_black"/>
+                 <geom name="c1_r_leg2" type="cylinder" size="0.015 0.25" pos="-0.35 -0.15 0.25" material="mat_frame_black"/>
+                 <geom name="c1_r_leg3" type="cylinder" size="0.015 0.25" pos="-0.65 0.15 0.25" material="mat_frame_black"/>
+                 <geom name="c1_r_leg4" type="cylinder" size="0.015 0.25" pos="-0.65 -0.15 0.25" material="mat_frame_black"/>
+             </body>
+        </body>
+
+        <!-- Row 2 -->
+        <body name="desk_row_2" pos="-0.5 0 0">
+             <body name="d2_l" pos="0 1.5 0">
+                 <geom name="d2_l_top" type="box" size="0.3 0.6 0.02" pos="0 0 0.8" material="mat_desk_top"/>
+                 <geom name="d2_l_leg1" type="cylinder" size="0.02 0.4" pos="0.25 0.55 0.4" material="mat_frame_black"/>
+                 <geom name="d2_l_leg2" type="cylinder" size="0.02 0.4" pos="0.25 -0.55 0.4" material="mat_frame_black"/>
+                 <geom name="d2_l_leg3" type="cylinder" size="0.02 0.4" pos="-0.25 0.55 0.4" material="mat_frame_black"/>
+                 <geom name="d2_l_leg4" type="cylinder" size="0.02 0.4" pos="-0.25 -0.55 0.4" material="mat_frame_black"/>
+                 <geom name="c2_l_seat" type="box" size="0.2 0.2 0.02" pos="-0.5 0 0.5" material="mat_chair_blue"/>
+                 <geom name="c2_l_back" type="box" size="0.02 0.2 0.2" pos="-0.7 0 0.7" material="mat_chair_blue"/>
+                 <!-- Chair Legs -->
+                 <geom name="c2_l_leg1" type="cylinder" size="0.015 0.25" pos="-0.35 0.15 0.25" material="mat_frame_black"/>
+                 <geom name="c2_l_leg2" type="cylinder" size="0.015 0.25" pos="-0.35 -0.15 0.25" material="mat_frame_black"/>
+                 <geom name="c2_l_leg3" type="cylinder" size="0.015 0.25" pos="-0.65 0.15 0.25" material="mat_frame_black"/>
+                 <geom name="c2_l_leg4" type="cylinder" size="0.015 0.25" pos="-0.65 -0.15 0.25" material="mat_frame_black"/>
+             </body>
+             <body name="d2_r" pos="0 -1.5 0">
+                 <geom name="d2_r_top" type="box" size="0.3 0.6 0.02" pos="0 0 0.8" material="mat_desk_top"/>
+                 <geom name="d2_r_leg1" type="cylinder" size="0.02 0.4" pos="0.25 0.55 0.4" material="mat_frame_black"/>
+                 <geom name="d2_r_leg2" type="cylinder" size="0.02 0.4" pos="0.25 -0.55 0.4" material="mat_frame_black"/>
+                 <geom name="d2_r_leg3" type="cylinder" size="0.02 0.4" pos="-0.25 0.55 0.4" material="mat_frame_black"/>
+                 <geom name="d2_r_leg4" type="cylinder" size="0.02 0.4" pos="-0.25 -0.55 0.4" material="mat_frame_black"/>
+                 <geom name="c2_r_seat" type="box" size="0.2 0.2 0.02" pos="-0.5 0 0.5" material="mat_chair_blue"/>
+                 <geom name="c2_r_back" type="box" size="0.02 0.2 0.2" pos="-0.7 0 0.7" material="mat_chair_blue"/>
+                 <!-- Chair Legs -->
+                 <geom name="c2_r_leg1" type="cylinder" size="0.015 0.25" pos="-0.35 0.15 0.25" material="mat_frame_black"/>
+                 <geom name="c2_r_leg2" type="cylinder" size="0.015 0.25" pos="-0.35 -0.15 0.25" material="mat_frame_black"/>
+                 <geom name="c2_r_leg3" type="cylinder" size="0.015 0.25" pos="-0.65 0.15 0.25" material="mat_frame_black"/>
+                 <geom name="c2_r_leg4" type="cylinder" size="0.015 0.25" pos="-0.65 -0.15 0.25" material="mat_frame_black"/>
+             </body>
+        </body>
+        
+        <!-- Row 3 -->
+        <body name="desk_row_3" pos="-2.5 0 0">
+             <body name="d3_l" pos="0 1.5 0">
+                 <geom name="d3_l_top" type="box" size="0.3 0.6 0.02" pos="0 0 0.8" material="mat_desk_top"/>
+                 <geom name="d3_l_leg1" type="cylinder" size="0.02 0.4" pos="0.25 0.55 0.4" material="mat_frame_black"/>
+                 <geom name="d3_l_leg2" type="cylinder" size="0.02 0.4" pos="0.25 -0.55 0.4" material="mat_frame_black"/>
+                 <geom name="d3_l_leg3" type="cylinder" size="0.02 0.4" pos="-0.25 0.55 0.4" material="mat_frame_black"/>
+                 <geom name="d3_l_leg4" type="cylinder" size="0.02 0.4" pos="-0.25 -0.55 0.4" material="mat_frame_black"/>
+                 <geom name="c3_l_seat" type="box" size="0.2 0.2 0.02" pos="-0.5 0 0.5" material="mat_chair_blue"/>
+                 <geom name="c3_l_back" type="box" size="0.02 0.2 0.2" pos="-0.7 0 0.7" material="mat_chair_blue"/>
+                 <!-- Chair Legs -->
+                 <geom name="c3_l_leg1" type="cylinder" size="0.015 0.25" pos="-0.35 0.15 0.25" material="mat_frame_black"/>
+                 <geom name="c3_l_leg2" type="cylinder" size="0.015 0.25" pos="-0.35 -0.15 0.25" material="mat_frame_black"/>
+                 <geom name="c3_l_leg3" type="cylinder" size="0.015 0.25" pos="-0.65 0.15 0.25" material="mat_frame_black"/>
+                 <geom name="c3_l_leg4" type="cylinder" size="0.015 0.25" pos="-0.65 -0.15 0.25" material="mat_frame_black"/>
+             </body>
+             <body name="d3_r" pos="0 -1.5 0">
+                 <geom name="d3_r_top" type="box" size="0.3 0.6 0.02" pos="0 0 0.8" material="mat_desk_top"/>
+                 <geom name="d3_r_leg1" type="cylinder" size="0.02 0.4" pos="0.25 0.55 0.4" material="mat_frame_black"/>
+                 <geom name="d3_r_leg2" type="cylinder" size="0.02 0.4" pos="0.25 -0.55 0.4" material="mat_frame_black"/>
+                 <geom name="d3_r_leg3" type="cylinder" size="0.02 0.4" pos="-0.25 0.55 0.4" material="mat_frame_black"/>
+                 <geom name="d3_r_leg4" type="cylinder" size="0.02 0.4" pos="-0.25 -0.55 0.4" material="mat_frame_black"/>
+                 <geom name="c3_r_seat" type="box" size="0.2 0.2 0.02" pos="-0.5 0 0.5" material="mat_chair_blue"/>
+                 <geom name="c3_r_back" type="box" size="0.02 0.2 0.2" pos="-0.7 0 0.7" material="mat_chair_blue"/>
+                 <!-- Chair Legs -->
+                 <geom name="c3_r_leg1" type="cylinder" size="0.015 0.25" pos="-0.35 0.15 0.25" material="mat_frame_black"/>
+                 <geom name="c3_r_leg2" type="cylinder" size="0.015 0.25" pos="-0.35 -0.15 0.25" material="mat_frame_black"/>
+                 <geom name="c3_r_leg3" type="cylinder" size="0.015 0.25" pos="-0.65 0.15 0.25" material="mat_frame_black"/>
+                 <geom name="c3_r_leg4" type="cylinder" size="0.015 0.25" pos="-0.65 -0.15 0.25" material="mat_frame_black"/>
+             </body>
+        </body>
+    </body>
+  </worldbody>
+</mujoco>
