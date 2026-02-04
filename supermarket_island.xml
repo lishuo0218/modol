@@ -1,0 +1,137 @@
+<mujoco model="supermarket_island">
+  <compiler angle="degree" coordinate="local" />
+  <option timestep="0.01" gravity="0 0 -9.81" />
+
+  <asset>
+    <material name="mat_white" rgba="0.95 0.95 0.95 1" specular="0.2" shininess="0.1" />
+    <material name="mat_gold" rgba="0.83 0.69 0.22 1" specular="0.9" shininess="0.9" />
+    <material name="mat_silver" rgba="0.8 0.8 0.8 1" specular="0.9" shininess="0.8" />
+  </asset>
+
+  <default>
+    <default class="cabinet_door">
+      <geom type="box" size="0.23 0.01 0.23" material="mat_white" />
+    </default>
+    <default class="handle">
+      <geom type="capsule" size="0.005 0.04" material="mat_silver" />
+    </default>
+  </default>
+
+  <worldbody>
+    <body name="island_display" pos="0 0 0">
+      <!-- ================= LEVEL 1: BASE CABINET ================= -->
+      <!-- Main Cabinet Body -->
+      <!-- Width 2m (size 1.0), Depth 1m (size 0.5), Height 0.6m -->
+      <geom name="base_body" type="box" size="1.0 0.5 0.28" pos="0 0 0.32" material="mat_white" />
+      
+      <!-- Gold Base Frame (Kickplate/Structure) -->
+      <geom name="base_frame_bottom" type="box" size="1.0 0.5 0.04" pos="0 0 0.04" material="mat_gold" />
+      <!-- Vertical Gold Accents at Corners -->
+      <geom name="corner_FL" type="box" size="0.04 0.04 0.32" pos="-0.96 -0.46 0.32" material="mat_gold" />
+      <geom name="corner_FR" type="box" size="0.04 0.04 0.32" pos="0.96 -0.46 0.32" material="mat_gold" />
+      <geom name="corner_BL" type="box" size="0.04 0.04 0.32" pos="-0.96 0.46 0.32" material="mat_gold" />
+      <geom name="corner_BR" type="box" size="0.04 0.04 0.32" pos="0.96 0.46 0.32" material="mat_gold" />
+
+      <!-- Cabinet Doors (Front) -->
+      <!-- Front face is at y = -0.5 -->
+      <!-- 4 Doors -->
+      <body name="doors_front" pos="0 -0.51 0.32">
+        <!-- Door 1 (Left) -->
+        <body name="door_1" pos="-0.75 0 0">
+            <geom class="cabinet_door" />
+            <geom class="handle" pos="0.15 -0.015 0.05" euler="90 0 0" />
+        </body>
+        <!-- Door 2 (Mid-Left) -->
+        <body name="door_2" pos="-0.25 0 0">
+            <geom class="cabinet_door" />
+            <geom class="handle" pos="-0.15 -0.015 0.05" euler="90 0 0" />
+        </body>
+        <!-- Door 3 (Mid-Right) -->
+        <body name="door_3" pos="0.25 0 0">
+            <geom class="cabinet_door" />
+            <geom class="handle" pos="0.15 -0.015 0.05" euler="90 0 0" />
+        </body>
+        <!-- Door 4 (Right) -->
+        <body name="door_4" pos="0.75 0 0">
+            <geom class="cabinet_door" />
+            <geom class="handle" pos="-0.15 -0.015 0.05" euler="90 0 0" />
+        </body>
+      </body>
+
+      <!-- Cabinet Doors (Back) - Optional, assuming symmetric -->
+      <body name="doors_back" pos="0 0.51 0.32" euler="0 0 180">
+        <body name="door_b1" pos="-0.75 0 0">
+            <geom class="cabinet_door" />
+            <geom class="handle" pos="0.15 -0.015 0.05" euler="90 0 0" />
+        </body>
+        <body name="door_b2" pos="-0.25 0 0">
+            <geom class="cabinet_door" />
+            <geom class="handle" pos="-0.15 -0.015 0.05" euler="90 0 0" />
+        </body>
+        <body name="door_b3" pos="0.25 0 0">
+            <geom class="cabinet_door" />
+            <geom class="handle" pos="0.15 -0.015 0.05" euler="90 0 0" />
+        </body>
+        <body name="door_b4" pos="0.75 0 0">
+            <geom class="cabinet_door" />
+            <geom class="handle" pos="-0.15 -0.015 0.05" euler="90 0 0" />
+        </body>
+      </body>
+
+      <!-- ================= LEVEL 2: MIDDLE SHELF ================= -->
+      <!-- Sits on top of Base (z=0.6) -->
+      <!-- Shelf size: 1.5m x 0.7m (size 0.75 0.35) -->
+      <!-- Frame Height: 0.3m -->
+      
+      <body name="level_2" pos="0 0 0.6">
+        <!-- Base Frame for Level 2 -->
+        <!-- Rectangular loop on the counter -->
+        <geom name="l2_base_front" type="box" size="0.7 0.02 0.02" pos="0 -0.3 0.02" material="mat_gold" />
+        <geom name="l2_base_back" type="box" size="0.7 0.02 0.02" pos="0 0.3 0.02" material="mat_gold" />
+        <geom name="l2_base_left" type="box" size="0.02 0.3 0.02" pos="-0.7 0 0.02" material="mat_gold" />
+        <geom name="l2_base_right" type="box" size="0.02 0.3 0.02" pos="0.7 0 0.02" material="mat_gold" />
+
+        <!-- Vertical Posts -->
+        <geom name="l2_post_FL" type="box" size="0.02 0.02 0.15" pos="-0.7 -0.3 0.17" material="mat_gold" />
+        <geom name="l2_post_FR" type="box" size="0.02 0.02 0.15" pos="0.7 -0.3 0.17" material="mat_gold" />
+        <geom name="l2_post_BL" type="box" size="0.02 0.02 0.15" pos="-0.7 0.3 0.17" material="mat_gold" />
+        <geom name="l2_post_BR" type="box" size="0.02 0.02 0.15" pos="0.7 0.3 0.17" material="mat_gold" />
+
+        <!-- Top Frame under Shelf -->
+        <!-- Same as base frame but at top -->
+        <!-- <geom name="l2_top_front" type="box" size="0.7 0.02 0.02" pos="0 -0.3 0.32" material="mat_gold" />
+        <geom name="l2_top_back" type="box" size="0.7 0.02 0.02" pos="0 0.3 0.32" material="mat_gold" />
+        <geom name="l2_top_left" type="box" size="0.02 0.3 0.02" pos="-0.7 0 0.32" material="mat_gold" />
+        <geom name="l2_top_right" type="box" size="0.02 0.3 0.02" pos="0.7 0 0.32" material="mat_gold" /> -->
+
+        <!-- The Shelf itself -->
+        <geom name="shelf_2" type="box" size="0.75 0.35 0.04" pos="0 0 0.36" material="mat_white" />
+      </body>
+
+      <!-- ================= LEVEL 3: TOP SHELF ================= -->
+      <!-- Sits on top of Level 2 (z = 0.6 + 0.36 + 0.04 = 1.0 approx) -->
+      <!-- Let's say z relative to origin is 0.6 + 0.4 = 1.0 -->
+      
+      <body name="level_3" pos="0 0 1.0">
+        <!-- Shelf size: 1.0m x 0.4m (size 0.5 0.2) -->
+        <!-- Frame Height: 0.25m -->
+
+        <!-- Base Frame for Level 3 -->
+        <geom name="l3_base_front" type="box" size="0.45 0.02 0.02" pos="0 -0.15 0.02" material="mat_gold" />
+        <geom name="l3_base_back" type="box" size="0.45 0.02 0.02" pos="0 0.15 0.02" material="mat_gold" />
+        <geom name="l3_base_left" type="box" size="0.02 0.15 0.02" pos="-0.45 0 0.02" material="mat_gold" />
+        <geom name="l3_base_right" type="box" size="0.02 0.15 0.02" pos="0.45 0 0.02" material="mat_gold" />
+
+        <!-- Vertical Posts -->
+        <geom name="l3_post_FL" type="box" size="0.02 0.02 0.12" pos="-0.45 -0.15 0.14" material="mat_gold" />
+        <geom name="l3_post_FR" type="box" size="0.02 0.02 0.12" pos="0.45 -0.15 0.14" material="mat_gold" />
+        <geom name="l3_post_BL" type="box" size="0.02 0.02 0.12" pos="-0.45 0.15 0.14" material="mat_gold" />
+        <geom name="l3_post_BR" type="box" size="0.02 0.02 0.12" pos="0.45 0.15 0.14" material="mat_gold" />
+
+        <!-- The Shelf itself -->
+        <geom name="shelf_3" type="box" size="0.5 0.2 0.04" pos="0 0 0.28" material="mat_white" />
+      </body>
+
+    </body>
+  </worldbody>
+</mujoco>

@@ -1,0 +1,210 @@
+<mujoco model="shopping_cart">
+  <compiler angle="degree"/>
+  <option gravity="0 0 -9.81"/>
+  
+  <asset>
+    <material name="chrome" rgba="0.8 0.8 0.85 1" shininess="1.0" specular="1.0" reflectance="0.7"/>
+    <material name="red_plastic" rgba="0.7 0.1 0.1 1" shininess="0.3" specular="0.5"/>
+    <material name="black_rubber" rgba="0.1 0.1 0.1 1" shininess="0.1" specular="0.1"/>
+  </asset>
+
+  <worldbody>
+    <body name="shopping_cart" pos="0 0 0">
+      <joint name="free_joint" type="free"/>
+      
+      <!-- === BASE FRAME === -->
+      <!-- Bottom Frame U-shape or Trapezoid -->
+      <!-- Height of base tubes: 0.18m -->
+      
+      <!-- Left Tube -->
+      <geom name="base_left" type="capsule" fromto="-0.35 0.28 0.18  0.35 0.22 0.18" size="0.012" material="chrome"/>
+      <!-- Right Tube -->
+      <geom name="base_right" type="capsule" fromto="-0.35 -0.28 0.18  0.35 -0.22 0.18" size="0.012" material="chrome"/>
+      <!-- Front Crossbar -->
+      <geom name="base_front" type="capsule" fromto="0.35 0.22 0.18  0.35 -0.22 0.18" size="0.012" material="chrome"/>
+      
+      <!-- Base Rack (Bottom Grid) -->
+      <geom name="rack_trans_1" type="capsule" fromto="-0.262 0.273 0.18 -0.262 -0.273 0.18" size="0.002" material="chrome"/>
+      <geom name="rack_trans_2" type="capsule" fromto="-0.175 0.265 0.18 -0.175 -0.265 0.18" size="0.002" material="chrome"/>
+      <geom name="rack_trans_3" type="capsule" fromto="-0.088 0.258 0.18 -0.088 -0.258 0.18" size="0.002" material="chrome"/>
+      <geom name="rack_trans_4" type="capsule" fromto="0.000 0.250 0.18 0.000 -0.250 0.18" size="0.002" material="chrome"/>
+      <geom name="rack_trans_5" type="capsule" fromto="0.088 0.242 0.18 0.088 -0.242 0.18" size="0.002" material="chrome"/>
+      <geom name="rack_trans_6" type="capsule" fromto="0.175 0.235 0.18 0.175 -0.235 0.18" size="0.002" material="chrome"/>
+      <geom name="rack_trans_7" type="capsule" fromto="0.262 0.228 0.18 0.262 -0.228 0.18" size="0.002" material="chrome"/>
+      <geom name="rack_long" type="capsule" fromto="-0.35 0 0.18 0.35 0 0.18" size="0.002" material="chrome"/>
+
+      <!-- Vertical Supports connecting base to basket -->
+      <!-- Rear Supports -->
+      <geom name="support_bl" type="capsule" fromto="-0.35 0.28 0.18  -0.35 0.22 0.55" size="0.012" material="chrome"/>
+      <geom name="support_br" type="capsule" fromto="-0.35 -0.28 0.18  -0.35 -0.22 0.55" size="0.012" material="chrome"/>
+      <!-- Front Supports -->
+      <geom name="support_fl" type="capsule" fromto="0.35 0.22 0.18  0.35 0.20 0.55" size="0.012" material="chrome"/>
+      <geom name="support_fr" type="capsule" fromto="0.35 -0.22 0.18  0.35 -0.20 0.55" size="0.012" material="chrome"/>
+      
+      <!-- === WHEELS === -->
+      <!-- Wheel Radius 0.05m. Center at Z=0.05m -->
+      <!-- Swivel axis at Z=0.18 (attached to base frame) -->
+      
+      <!-- Front Left -->
+      <body name="caster_fl" pos="0.35 0.22 0.18">
+        <joint name="swivel_fl" type="hinge" axis="0 0 1" damping="0.1"/>
+        <geom name="fork_fl" type="capsule" fromto="0 0 0  -0.03 0 -0.08" size="0.008" material="chrome"/>
+        <body name="wheel_fl" pos="-0.03 0 -0.13"> <!-- 0.18 - 0.13 = 0.05 -->
+            <joint name="roll_fl" type="hinge" axis="0 1 0" damping="0.01"/>
+            <geom name="tire_fl" type="cylinder" size="0.05 0.015" material="black_rubber" euler="90 0 0"/>
+            <geom name="hub_fl" type="cylinder" size="0.03 0.016" material="chrome" euler="90 0 0"/>
+        </body>
+      </body>
+
+      <!-- Front Right -->
+      <body name="caster_fr" pos="0.35 -0.22 0.18">
+        <joint name="swivel_fr" type="hinge" axis="0 0 1" damping="0.1"/>
+        <geom name="fork_fr" type="capsule" fromto="0 0 0  -0.03 0 -0.08" size="0.008" material="chrome"/>
+        <body name="wheel_fr" pos="-0.03 0 -0.13">
+            <joint name="roll_fr" type="hinge" axis="0 1 0" damping="0.01"/>
+            <geom name="tire_fr" type="cylinder" size="0.05 0.015" material="black_rubber" euler="90 0 0"/>
+            <geom name="hub_fr" type="cylinder" size="0.03 0.016" material="chrome" euler="90 0 0"/>
+        </body>
+      </body>
+
+      <!-- Back Left -->
+      <body name="caster_bl" pos="-0.35 0.28 0.18">
+        <joint name="swivel_bl" type="hinge" axis="0 0 1" damping="0.1"/>
+        <geom name="fork_bl" type="capsule" fromto="0 0 0  -0.03 0 -0.08" size="0.008" material="chrome"/>
+        <body name="wheel_bl" pos="-0.03 0 -0.13">
+            <joint name="roll_bl" type="hinge" axis="0 1 0" damping="0.01"/>
+            <geom name="tire_bl" type="cylinder" size="0.05 0.015" material="black_rubber" euler="90 0 0"/>
+            <geom name="hub_bl" type="cylinder" size="0.03 0.016" material="chrome" euler="90 0 0"/>
+        </body>
+      </body>
+
+      <!-- Back Right -->
+      <body name="caster_br" pos="-0.35 -0.28 0.18">
+        <joint name="swivel_br" type="hinge" axis="0 0 1" damping="0.1"/>
+        <geom name="fork_br" type="capsule" fromto="0 0 0  -0.03 0 -0.08" size="0.008" material="chrome"/>
+        <body name="wheel_br" pos="-0.03 0 -0.13">
+            <joint name="roll_br" type="hinge" axis="0 1 0" damping="0.01"/>
+            <geom name="tire_br" type="cylinder" size="0.05 0.015" material="black_rubber" euler="90 0 0"/>
+            <geom name="hub_br" type="cylinder" size="0.03 0.016" material="chrome" euler="90 0 0"/>
+        </body>
+      </body>
+
+      <!-- === BASKET === -->
+      <body name="basket" pos="0 0 0">
+        
+        <!-- Detailed Wire Mesh -->
+        <geom name="mesh_side_l_1" type="capsule" fromto="-0.360 0.278 0.940 -0.280 0.218 0.550" size="0.002" material="chrome"/>
+        <geom name="mesh_side_r_1" type="capsule" fromto="-0.360 -0.278 0.940 -0.280 -0.218 0.550" size="0.002" material="chrome"/>
+        <geom name="mesh_side_l_2" type="capsule" fromto="-0.270 0.276 0.930 -0.210 0.216 0.550" size="0.002" material="chrome"/>
+        <geom name="mesh_side_r_2" type="capsule" fromto="-0.270 -0.276 0.930 -0.210 -0.216 0.550" size="0.002" material="chrome"/>
+        <geom name="mesh_side_l_3" type="capsule" fromto="-0.180 0.274 0.920 -0.140 0.214 0.550" size="0.002" material="chrome"/>
+        <geom name="mesh_side_r_3" type="capsule" fromto="-0.180 -0.274 0.920 -0.140 -0.214 0.550" size="0.002" material="chrome"/>
+        <geom name="mesh_side_l_4" type="capsule" fromto="-0.090 0.272 0.910 -0.070 0.212 0.550" size="0.002" material="chrome"/>
+        <geom name="mesh_side_r_4" type="capsule" fromto="-0.090 -0.272 0.910 -0.070 -0.212 0.550" size="0.002" material="chrome"/>
+        <geom name="mesh_side_l_5" type="capsule" fromto="0.000 0.270 0.900 0.000 0.210 0.550" size="0.002" material="chrome"/>
+        <geom name="mesh_side_r_5" type="capsule" fromto="0.000 -0.270 0.900 0.000 -0.210 0.550" size="0.002" material="chrome"/>
+        <geom name="mesh_side_l_6" type="capsule" fromto="0.090 0.268 0.890 0.070 0.208 0.550" size="0.002" material="chrome"/>
+        <geom name="mesh_side_r_6" type="capsule" fromto="0.090 -0.268 0.890 0.070 -0.208 0.550" size="0.002" material="chrome"/>
+        <geom name="mesh_side_l_7" type="capsule" fromto="0.180 0.266 0.880 0.140 0.206 0.550" size="0.002" material="chrome"/>
+        <geom name="mesh_side_r_7" type="capsule" fromto="0.180 -0.266 0.880 0.140 -0.206 0.550" size="0.002" material="chrome"/>
+        <geom name="mesh_side_l_8" type="capsule" fromto="0.270 0.264 0.870 0.210 0.204 0.550" size="0.002" material="chrome"/>
+        <geom name="mesh_side_r_8" type="capsule" fromto="0.270 -0.264 0.870 0.210 -0.204 0.550" size="0.002" material="chrome"/>
+        <geom name="mesh_side_l_9" type="capsule" fromto="0.360 0.262 0.860 0.280 0.202 0.550" size="0.002" material="chrome"/>
+        <geom name="mesh_side_r_9" type="capsule" fromto="0.360 -0.262 0.860 0.280 -0.202 0.550" size="0.002" material="chrome"/>
+        <geom name="mesh_front_1" type="capsule" fromto="0.450 0.195 0.850 0.350 0.150 0.550" size="0.002" material="chrome"/>
+        <geom name="mesh_front_2" type="capsule" fromto="0.450 0.130 0.850 0.350 0.100 0.550" size="0.002" material="chrome"/>
+        <geom name="mesh_front_3" type="capsule" fromto="0.450 0.065 0.850 0.350 0.050 0.550" size="0.002" material="chrome"/>
+        <geom name="mesh_front_4" type="capsule" fromto="0.450 0.000 0.850 0.350 0.000 0.550" size="0.002" material="chrome"/>
+        <geom name="mesh_front_5" type="capsule" fromto="0.450 -0.065 0.850 0.350 -0.050 0.550" size="0.002" material="chrome"/>
+        <geom name="mesh_front_6" type="capsule" fromto="0.450 -0.130 0.850 0.350 -0.100 0.550" size="0.002" material="chrome"/>
+        <geom name="mesh_front_7" type="capsule" fromto="0.450 -0.195 0.850 0.350 -0.150 0.550" size="0.002" material="chrome"/>
+        <geom name="mesh_back_1" type="capsule" fromto="-0.450 0.210 0.950 -0.350 0.165 0.550" size="0.002" material="chrome"/>
+        <geom name="mesh_back_2" type="capsule" fromto="-0.450 0.140 0.950 -0.350 0.110 0.550" size="0.002" material="chrome"/>
+        <geom name="mesh_back_3" type="capsule" fromto="-0.450 0.070 0.950 -0.350 0.055 0.550" size="0.002" material="chrome"/>
+        <geom name="mesh_back_4" type="capsule" fromto="-0.450 0.000 0.950 -0.350 0.000 0.550" size="0.002" material="chrome"/>
+        <geom name="mesh_back_5" type="capsule" fromto="-0.450 -0.070 0.950 -0.350 -0.055 0.550" size="0.002" material="chrome"/>
+        <geom name="mesh_back_6" type="capsule" fromto="-0.450 -0.140 0.950 -0.350 -0.110 0.550" size="0.002" material="chrome"/>
+        <geom name="mesh_back_7" type="capsule" fromto="-0.450 -0.210 0.950 -0.350 -0.165 0.550" size="0.002" material="chrome"/>
+        <geom name="mesh_h_l_1" type="capsule" fromto="-0.433 0.270 0.883 0.433 0.250 0.800" size="0.002" material="chrome"/>
+        <geom name="mesh_h_r_1" type="capsule" fromto="-0.433 -0.270 0.883 0.433 -0.250 0.800" size="0.002" material="chrome"/>
+        <geom name="mesh_h_f_1" type="capsule" fromto="0.433 0.250 0.800 0.433 -0.250 0.800" size="0.002" material="chrome"/>
+        <geom name="mesh_h_b_1" type="capsule" fromto="-0.433 0.270 0.883 -0.433 -0.270 0.883" size="0.002" material="chrome"/>
+        <geom name="mesh_h_l_2" type="capsule" fromto="-0.417 0.260 0.817 0.417 0.240 0.750" size="0.002" material="chrome"/>
+        <geom name="mesh_h_r_2" type="capsule" fromto="-0.417 -0.260 0.817 0.417 -0.240 0.750" size="0.002" material="chrome"/>
+        <geom name="mesh_h_f_2" type="capsule" fromto="0.417 0.240 0.750 0.417 -0.240 0.750" size="0.002" material="chrome"/>
+        <geom name="mesh_h_b_2" type="capsule" fromto="-0.417 0.260 0.817 -0.417 -0.260 0.817" size="0.002" material="chrome"/>
+        <geom name="mesh_h_l_3" type="capsule" fromto="-0.400 0.250 0.750 0.400 0.230 0.700" size="0.002" material="chrome"/>
+        <geom name="mesh_h_r_3" type="capsule" fromto="-0.400 -0.250 0.750 0.400 -0.230 0.700" size="0.002" material="chrome"/>
+        <geom name="mesh_h_f_3" type="capsule" fromto="0.400 0.230 0.700 0.400 -0.230 0.700" size="0.002" material="chrome"/>
+        <geom name="mesh_h_b_3" type="capsule" fromto="-0.400 0.250 0.750 -0.400 -0.250 0.750" size="0.002" material="chrome"/>
+        <geom name="mesh_h_l_4" type="capsule" fromto="-0.383 0.240 0.683 0.383 0.220 0.650" size="0.002" material="chrome"/>
+        <geom name="mesh_h_r_4" type="capsule" fromto="-0.383 -0.240 0.683 0.383 -0.220 0.650" size="0.002" material="chrome"/>
+        <geom name="mesh_h_f_4" type="capsule" fromto="0.383 0.220 0.650 0.383 -0.220 0.650" size="0.002" material="chrome"/>
+        <geom name="mesh_h_b_4" type="capsule" fromto="-0.383 0.240 0.683 -0.383 -0.240 0.683" size="0.002" material="chrome"/>
+        <geom name="mesh_h_l_5" type="capsule" fromto="-0.367 0.230 0.617 0.367 0.210 0.600" size="0.002" material="chrome"/>
+        <geom name="mesh_h_r_5" type="capsule" fromto="-0.367 -0.230 0.617 0.367 -0.210 0.600" size="0.002" material="chrome"/>
+        <geom name="mesh_h_f_5" type="capsule" fromto="0.367 0.210 0.600 0.367 -0.210 0.600" size="0.002" material="chrome"/>
+        <geom name="mesh_h_b_5" type="capsule" fromto="-0.367 0.230 0.617 -0.367 -0.230 0.617" size="0.002" material="chrome"/>
+        <geom name="floor_long_1" type="capsule" fromto="-0.350 0.165 0.550 0.350 0.150 0.550" size="0.002" material="chrome"/>
+        <geom name="floor_long_2" type="capsule" fromto="-0.350 0.110 0.550 0.350 0.100 0.550" size="0.002" material="chrome"/>
+        <geom name="floor_long_3" type="capsule" fromto="-0.350 0.055 0.550 0.350 0.050 0.550" size="0.002" material="chrome"/>
+        <geom name="floor_long_4" type="capsule" fromto="-0.350 0.000 0.550 0.350 0.000 0.550" size="0.002" material="chrome"/>
+        <geom name="floor_long_5" type="capsule" fromto="-0.350 -0.055 0.550 0.350 -0.050 0.550" size="0.002" material="chrome"/>
+        <geom name="floor_long_6" type="capsule" fromto="-0.350 -0.110 0.550 0.350 -0.100 0.550" size="0.002" material="chrome"/>
+        <geom name="floor_long_7" type="capsule" fromto="-0.350 -0.165 0.550 0.350 -0.150 0.550" size="0.002" material="chrome"/>
+        <geom name="floor_trans_1" type="capsule" fromto="-0.280 0.218 0.550 -0.280 -0.218 0.550" size="0.002" material="chrome"/>
+        <geom name="floor_trans_2" type="capsule" fromto="-0.210 0.216 0.550 -0.210 -0.216 0.550" size="0.002" material="chrome"/>
+        <geom name="floor_trans_3" type="capsule" fromto="-0.140 0.214 0.550 -0.140 -0.214 0.550" size="0.002" material="chrome"/>
+        <geom name="floor_trans_4" type="capsule" fromto="-0.070 0.212 0.550 -0.070 -0.212 0.550" size="0.002" material="chrome"/>
+        <geom name="floor_trans_5" type="capsule" fromto="0.000 0.210 0.550 0.000 -0.210 0.550" size="0.002" material="chrome"/>
+        <geom name="floor_trans_6" type="capsule" fromto="0.070 0.208 0.550 0.070 -0.208 0.550" size="0.002" material="chrome"/>
+        <geom name="floor_trans_7" type="capsule" fromto="0.140 0.206 0.550 0.140 -0.206 0.550" size="0.002" material="chrome"/>
+        <geom name="floor_trans_8" type="capsule" fromto="0.210 0.204 0.550 0.210 -0.204 0.550" size="0.002" material="chrome"/>
+        <geom name="floor_trans_9" type="capsule" fromto="0.280 0.202 0.550 0.280 -0.202 0.550" size="0.002" material="chrome"/>
+
+        <!-- Frame Structure -->
+        <!-- Top Rim -->
+        <geom name="rim_left" type="capsule" fromto="-0.45 0.28 0.95  0.45 0.26 0.85" size="0.01" material="chrome"/>
+        <geom name="rim_right" type="capsule" fromto="-0.45 -0.28 0.95  0.45 -0.26 0.85" size="0.01" material="chrome"/>
+        <geom name="rim_front" type="capsule" fromto="0.45 0.26 0.85  0.45 -0.26 0.85" size="0.01" material="red_plastic"/> <!-- Red corner/front -->
+        <geom name="rim_back" type="capsule" fromto="-0.45 0.28 0.95  -0.45 -0.28 0.95" size="0.01" material="chrome"/>
+
+        <!-- Bottom Rim -->
+        <geom name="bottom_left" type="capsule" fromto="-0.35 0.22 0.55  0.35 0.20 0.55" size="0.01" material="chrome"/>
+        <geom name="bottom_right" type="capsule" fromto="-0.35 -0.22 0.55  0.35 -0.20 0.55" size="0.01" material="chrome"/>
+        <geom name="bottom_front" type="capsule" fromto="0.35 0.20 0.55  0.35 -0.20 0.55" size="0.01" material="chrome"/>
+        <geom name="bottom_back" type="capsule" fromto="-0.35 0.22 0.55  -0.35 -0.22 0.55" size="0.01" material="chrome"/>
+
+        <!-- Vertical Connectors (Corners) -->
+        <geom name="vert_bl" type="capsule" fromto="-0.35 0.22 0.55  -0.45 0.28 0.95" size="0.008" material="chrome"/>
+        <geom name="vert_br" type="capsule" fromto="-0.35 -0.22 0.55  -0.45 -0.28 0.95" size="0.008" material="chrome"/>
+        <geom name="vert_fl" type="capsule" fromto="0.35 0.20 0.55  0.45 0.26 0.85" size="0.008" material="chrome"/>
+        <geom name="vert_fr" type="capsule" fromto="0.35 -0.20 0.55  0.45 -0.26 0.85" size="0.008" material="chrome"/>
+
+        <!-- Front Red Corners -->
+        <geom name="corner_fl" type="box" size="0.02 0.02 0.03" pos="0.45 0.26 0.85" material="red_plastic"/>
+        <geom name="corner_fr" type="box" size="0.02 0.02 0.03" pos="0.45 -0.26 0.85" material="red_plastic"/>
+
+        <!-- Handle -->
+        <geom name="handle_bar" type="capsule" fromto="-0.55 0.28 0.98  -0.55 -0.28 0.98" size="0.015" material="red_plastic"/>
+        <geom name="handle_left_conn" type="capsule" fromto="-0.45 0.28 0.95  -0.55 0.28 0.98" size="0.01" material="chrome"/>
+        <geom name="handle_right_conn" type="capsule" fromto="-0.45 -0.28 0.95  -0.55 -0.28 0.98" size="0.01" material="chrome"/>
+
+        <!-- Child Seat -->
+        <!-- Seat Flap -->
+        <geom name="seat_flap" type="box" size="0.08 0.12 0.005" pos="-0.25 0 0.8" euler="0 -15 0" material="red_plastic"/>
+        <!-- Back Rest (with simulated leg holes) -->
+        <!-- Center Pillar -->
+        <geom name="seat_back_center" type="box" size="0.005 0.03 0.08" pos="-0.35 0 0.85" euler="0 -10 0" material="red_plastic"/>
+        <!-- Left Side -->
+        <geom name="seat_back_left" type="box" size="0.005 0.05 0.08" pos="-0.35 0.18 0.85" euler="0 -10 0" material="red_plastic"/>
+        <!-- Right Side -->
+        <geom name="seat_back_right" type="box" size="0.005 0.05 0.08" pos="-0.35 -0.18 0.85" euler="0 -10 0" material="red_plastic"/>
+        <!-- Top Bar -->
+        <geom name="seat_back_top" type="box" size="0.005 0.23 0.02" pos="-0.36 0 0.93" euler="0 -10 0" material="red_plastic"/>
+        
+      </body>
+
+    </body>
+  </worldbody>
+</mujoco>
