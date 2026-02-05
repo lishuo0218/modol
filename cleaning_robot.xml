@@ -1,0 +1,82 @@
+<mujoco model="cleaning_robot">
+  <compiler angle="degree" coordinate="local" inertiafromgeom="true"/>
+  <option timestep="0.005" gravity="0 0 -9.81"/>
+
+  <default>
+    <joint damping="0.5" armature="0.01"/>
+    <geom condim="3" friction="1 0.005 0.0001" solimp="0.9 0.95 0.001 0.5 2" solref="0.02 1"/>
+    <motor ctrlrange="-2 2" ctrllimited="true"/>
+  </default>
+
+  <asset>
+    <texture type="skybox" builtin="gradient" rgb1="0.9 0.9 1" rgb2="0.5 0.7 0.8" width="512" height="320"/>
+    <texture name="grid" type="2d" builtin="checker" rgb1=".2 .3 .4" rgb2=".1 .2 .3" width="512" height="512" mark="edge" markrgb=".8 .8 .8"/>
+    <material name="grid" texture="grid" texrepeat="5 5" reflectance=".2"/>
+    <material name="white_plastic" rgba="0.95 0.95 0.95 1" specular="0.3" shininess="0.5"/>
+    <material name="red_plastic" rgba="0.8 0.1 0.1 1" specular="0.3" shininess="0.5"/>
+    <material name="dark_plastic" rgba="0.15 0.15 0.15 1" specular="0.1" shininess="0.5"/>
+  </asset>
+
+  <worldbody>
+    <light pos="0 0 4" dir="0 0 -1" diffuse="0.8 0.8 0.8" specular="0.3 0.3 0.3" castshadow="true"/>
+    <geom name="floor" size="4 4 .1" type="plane" material="grid"/>
+
+    <!-- Robot Body -->
+    <!-- Positioned slightly above ground (Wheel Radius 0.033m) -->
+    <body name="robot" pos="0 0 0.033">
+      <freejoint/>
+
+      <!-- Main Chassis: White Cylinder -->
+      <!-- Radius 0.17m, Height 0.08m (half-height 0.04) -->
+      <!-- Lifted relative to wheel axle so bottom clears ground -->
+      <geom name="chassis" type="cylinder" size="0.17 0.04" pos="0 0 0.027" material="white_plastic" mass="3.5"/>
+      
+      <!-- Lidar Tower -->
+      <!-- Base -->
+      <geom name="lidar_base" type="cylinder" size="0.04 0.01" pos="-0.04 0 0.077" material="white_plastic"/>
+      <!-- Sensor Head (Red) -->
+      <geom name="lidar_head" type="cylinder" size="0.038 0.0075" pos="-0.04 0 0.0945" material="red_plastic"/>
+      <site name="lidar_site" pos="-0.04 0 0.0945" size="0.01" rgba="0 1 0 0.5" euler="0 90 0"/>
+      
+      <!-- Control Button -->
+      <geom name="button" type="cylinder" size="0.015 0.002" pos="0.06 0 0.068" material="dark_plastic"/>
+
+      <!-- LEFT WHEEL -->
+      <body name="left_wheel" pos="0 0.135 0" zaxis="0 1 0">
+        <joint name="left_wheel_joint" type="hinge" axis="0 0 1"/>
+        <geom name="left_wheel_geom" type="cylinder" size="0.033 0.008" material="dark_plastic" friction="1.5 0.005 0.0001"/>
+      </body>
+
+      <!-- RIGHT WHEEL -->
+      <body name="right_wheel" pos="0 -0.135 0" zaxis="0 1 0">
+        <joint name="right_wheel_joint" type="hinge" axis="0 0 1"/>
+        <geom name="right_wheel_geom" type="cylinder" size="0.033 0.008" material="dark_plastic" friction="1.5 0.005 0.0001"/>
+      </body>
+
+      <!-- CASTER WHEEL (Front Support) -->
+      <!-- Sphere with low friction to simulate rolling caster -->
+      <body name="front_caster" pos="0.13 0 -0.018">
+        <geom name="front_caster_geom" type="sphere" size="0.015" material="dark_plastic" friction="0.01 0.01 0.01" mass="0.1"/>
+      </body>
+      
+       <!-- CASTER WHEEL (Rear Support) -->
+      <body name="rear_caster" pos="-0.13 0 -0.018">
+        <geom name="rear_caster_geom" type="sphere" size="0.015" material="dark_plastic" friction="0.01 0.01 0.01" mass="0.1"/>
+      </body>
+
+    </body>
+  </worldbody>
+
+  <actuator>
+    <!-- Differential Drive Motors (Automatic Mode) -->
+    <!-- biasprm="1.5 0 0" restores automatic forward movement -->
+    <general name="left_drive" joint="left_wheel_joint" gear="1" biastype="affine" biasprm="1.5 0 0" ctrlrange="-10 10" ctrllimited="true"/>
+    <general name="right_drive" joint="right_wheel_joint" gear="1" biastype="affine" biasprm="1.5 0 0" ctrlrange="-10 10" ctrllimited="true"/>
+  </actuator>
+
+  <sensor>
+    <rangefinder name="lidar_sensor" site="lidar_site" noise="0.01" />
+    <gyro name="gyro" site="lidar_site" noise="0.001" />
+  </sensor>
+
+</mujoco>

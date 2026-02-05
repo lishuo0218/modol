@@ -1,0 +1,119 @@
+<mujoco model="chest_freezer">
+  <compiler angle="degree" coordinate="local"/>
+  <option timestep="0.01" gravity="0 0 -9.81"/>
+
+  <visual>
+    <headlight ambient="0.6 0.6 0.6"/>
+    <global offwidth="1920" offheight="1080"/>
+  </visual>
+
+  <asset>
+    <texture type="skybox" builtin="gradient" rgb1="0.9 0.9 1" rgb2="1 1 1" width="512" height="512"/>
+    
+    <!-- Materials -->
+    <material name="white_paint" rgba="0.95 0.95 0.95 1" specular="0.5" shininess="0.5" reflectance="0.1"/>
+    <material name="grey_plastic" rgba="0.6 0.6 0.6 1" specular="0.3" shininess="0.3"/>
+    <material name="silver_lining" rgba="0.8 0.8 0.85 1" specular="0.8" shininess="0.8" reflectance="0.4"/>
+    <material name="glass" rgba="0.85 0.9 1 0.3" specular="0.9" shininess="0.95" reflectance="0.3"/>
+    <material name="white_mesh" rgba="0.9 0.9 0.9 1" specular="0.2" shininess="0.2"/>
+    <material name="red_logo" rgba="0.8 0.1 0.1 1" specular="0.5" shininess="0.5"/>
+    <material name="control_panel" rgba="0.9 0.9 0.9 1" specular="0.5" shininess="0.5"/>
+  </asset>
+
+  <worldbody>
+    <light pos="0 0 3" dir="0 0 -1" diffuse="0.8 0.8 0.8"/>
+    <geom name="floor" type="plane" size="5 5 0.1" material="white_paint" rgba="0.8 0.8 0.8 1"/>
+
+    <!-- Chest Freezer Body -->
+    <!-- Dimensions: 1.2m (W) x 0.7m (D) x 0.85m (H) -->
+    <!-- Center bottom at 0,0,0 -->
+    <body name="freezer" pos="0 0 0">
+      
+      <!-- Base (White) -->
+      <geom name="base" type="box" size="0.6 0.35 0.05" pos="0 0 0.05" material="white_paint"/>
+      
+      <!-- Internal Floor (Silver) - Slightly above base -->
+      <geom name="floor_lining" type="box" size="0.56 0.31 0.001" pos="0 0 0.101" material="silver_lining"/>
+
+      <!-- Walls -->
+      <!-- Front Wall -->
+      <geom name="front_wall" type="box" size="0.6 0.02 0.4" pos="0 -0.33 0.45" material="white_paint"/>
+      <!-- Front Wall Lining -->
+      <geom name="front_lining" type="box" size="0.56 0.001 0.35" pos="0 -0.309 0.45" material="silver_lining"/>
+
+      <!-- Back Wall -->
+      <geom name="back_wall" type="box" size="0.6 0.02 0.4" pos="0 0.33 0.45" material="white_paint"/>
+      <!-- Back Wall Lining -->
+      <geom name="back_lining" type="box" size="0.56 0.001 0.35" pos="0 0.309 0.45" material="silver_lining"/>
+
+      <!-- Left Wall -->
+      <geom name="left_wall" type="box" size="0.02 0.31 0.4" pos="-0.58 0 0.45" material="white_paint"/>
+      <!-- Left Wall Lining -->
+      <geom name="left_lining" type="box" size="0.001 0.309 0.35" pos="-0.559 0 0.45" material="silver_lining"/>
+
+      <!-- Right Wall -->
+      <geom name="right_wall" type="box" size="0.02 0.31 0.4" pos="0.58 0 0.45" material="white_paint"/>
+      <!-- Right Wall Lining -->
+      <geom name="right_lining" type="box" size="0.001 0.309 0.35" pos="0.559 0 0.45" material="silver_lining"/>
+
+      <!-- Top Frame (Grey) -->
+      <!-- Front Frame -->
+      <geom name="frame_front" type="box" size="0.62 0.04 0.03" pos="0 -0.35 0.85" material="grey_plastic"/>
+      <!-- Back Frame -->
+      <geom name="frame_back" type="box" size="0.62 0.04 0.03" pos="0 0.35 0.85" material="grey_plastic"/>
+      <!-- Left Frame -->
+      <geom name="frame_left" type="box" size="0.04 0.35 0.03" pos="-0.62 0 0.85" material="grey_plastic"/>
+      <!-- Right Frame -->
+      <geom name="frame_right" type="box" size="0.04 0.35 0.03" pos="0.62 0 0.85" material="grey_plastic"/>
+
+      <!-- Logo Area (Front) -->
+      <geom name="logo_text" type="box" size="0.2 0.001 0.08" pos="0 -0.351 0.4" material="red_logo"/>
+
+      <!-- Control Panel (Bottom Right Front) -->
+      <geom name="control" type="box" size="0.06 0.005 0.04" pos="0.45 -0.351 0.15" material="control_panel"/>
+      <geom name="knob1" type="cylinder" size="0.01 0.01" pos="0.43 -0.36 0.15" euler="90 0 0" material="grey_plastic"/>
+      <geom name="knob2" type="cylinder" size="0.01 0.01" pos="0.47 -0.36 0.15" euler="90 0 0" material="grey_plastic"/>
+
+      <!-- Basket (Wire mesh simplified as transparent box with frame) -->
+      <body name="basket" pos="-0.4 0 0.6">
+        <!-- Rim -->
+        <geom name="basket_rim_f" type="box" size="0.15 0.005 0.005" pos="0 -0.25 0.2" material="white_mesh"/>
+        <geom name="basket_rim_b" type="box" size="0.15 0.005 0.005" pos="0 0.25 0.2" material="white_mesh"/>
+        <geom name="basket_rim_l" type="box" size="0.005 0.25 0.005" pos="-0.15 0 0.2" material="white_mesh"/>
+        <geom name="basket_rim_r" type="box" size="0.005 0.25 0.005" pos="0.15 0 0.2" material="white_mesh"/>
+        
+        <!-- Body (Visual simplified) -->
+        <geom name="basket_body" type="box" size="0.14 0.24 0.15" pos="0 0 0.05" material="white_mesh" rgba="0.9 0.9 0.9 0.2"/>
+        <!-- Vertical wires (Visual) -->
+        <geom name="wire1" type="capsule" size="0.002 0.15" pos="-0.07 0 0.05" material="white_mesh"/>
+        <geom name="wire2" type="capsule" size="0.002 0.15" pos="0.07 0 0.05" material="white_mesh"/>
+      </body>
+
+      <!-- Sliding Doors -->
+      <!-- Left Door (Inner track) -->
+      <body name="door_left" pos="-0.29 0 0.85">
+        <joint name="slide_left" type="slide" axis="1 0 0" range="0 0.55" damping="1.0"/>
+        <!-- Glass -->
+        <geom name="glass_left" type="box" size="0.29 0.3 0.005" pos="0 0 0" material="glass"/>
+        <!-- Frame -->
+        <geom name="frame_l_l" type="box" size="0.01 0.3 0.006" pos="-0.28 0 0" material="grey_plastic"/>
+        <geom name="frame_l_r" type="box" size="0.01 0.3 0.006" pos="0.28 0 0" material="grey_plastic"/>
+        <!-- Handle optimized: moved to outer edge for better visibility -->
+        <geom name="handle_left" type="box" size="0.01 0.04 0.008" pos="-0.28 0 0.014" material="grey_plastic"/>
+      </body>
+
+      <!-- Right Door (Outer track, slightly higher) -->
+      <body name="door_right" pos="0.29 0 0.865">
+        <joint name="slide_right" type="slide" axis="-1 0 0" range="0 0.55" damping="1.0"/>
+        <!-- Glass -->
+        <geom name="glass_right" type="box" size="0.29 0.3 0.005" pos="0 0 0" material="glass"/>
+        <!-- Frame -->
+        <geom name="frame_r_l" type="box" size="0.01 0.3 0.006" pos="-0.28 0 0" material="grey_plastic"/>
+        <geom name="frame_r_r" type="box" size="0.01 0.3 0.006" pos="0.28 0 0" material="grey_plastic"/>
+        <!-- Handle optimized: moved to outer edge for better visibility -->
+        <geom name="handle_right" type="box" size="0.01 0.04 0.008" pos="0.28 0 0.014" material="grey_plastic"/>
+      </body>
+
+    </body>
+  </worldbody>
+</mujoco>

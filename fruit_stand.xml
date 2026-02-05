@@ -1,0 +1,119 @@
+<mujoco model="fruit_stand">
+  <compiler angle="degree" coordinate="local"/>
+  <option timestep="0.01" gravity="0 0 -9.81"/>
+
+  <visual>
+    <headlight ambient="0.6 0.6 0.6"/>
+    <global offwidth="1920" offheight="1080"/>
+  </visual>
+
+  <asset>
+    <texture type="skybox" builtin="gradient" rgb1="0.9 0.9 1" rgb2="1 1 1" width="512" height="512"/>
+    
+    <!-- Materials -->
+    <material name="wood_light" rgba="0.85 0.75 0.6 1" specular="0.1" shininess="0.1"/>
+    <material name="wood_dark" rgba="0.6 0.5 0.4 1" specular="0.1" shininess="0.1"/>
+    <material name="metal_black" rgba="0.15 0.15 0.15 1" specular="0.7" shininess="0.8"/>
+    <material name="wire_mesh" rgba="0.1 0.1 0.1 0.3" specular="0.2" shininess="0.2"/>
+    <material name="price_tag_bg" rgba="0.95 0.95 0.2 1" specular="0.2" shininess="0.2"/>
+    <material name="price_tag_text" rgba="0 0 0 1"/>
+  </asset>
+
+  <worldbody>
+    <light pos="0 0 4" dir="0 0 -1" diffuse="0.8 0.8 0.8"/>
+    <geom name="floor" type="plane" size="5 5 0.1" material="wood_dark" rgba="0.5 0.5 0.5 1"/>
+
+    <!-- FRUIT STAND ASSEMBLY -->
+    <!-- Overall dimensions: approx 2.28m x 1.35m x 1.4m -->
+    <body name="fruit_stand" pos="0 0 0">
+
+      <!-- ================= BASE CABINETS ================= -->
+      <!-- Main Center Cabinet (Double sided) -->
+      <!-- Size: 1.2m long, 1.0m wide, 0.6m high -->
+      <body name="base_center" pos="0 0 0.3">
+        <!-- Wood Box -->
+        <geom name="base_box" type="box" size="0.6 0.5 0.3" material="wood_light"/>
+        <!-- Black Metal Frame / Kickplate -->
+        <geom name="base_frame_bottom" type="box" size="0.605 0.505 0.05" pos="0 0 -0.25" material="metal_black"/>
+        <geom name="base_frame_top" type="box" size="0.605 0.505 0.02" pos="0 0 0.3" material="metal_black"/>
+        <!-- Decorative lines (Drawers/Doors) -->
+        <geom name="door_line" type="box" size="0.005 0.51 0.25" pos="0 0 0" material="metal_black"/>
+      </body>
+
+      <!-- End Cap Cabinet (Left) -->
+      <!-- Semi-hexagonal shape approximated with a box + rotation or just a box -->
+      <body name="base_left" pos="-0.9 0 0.3">
+        <geom name="base_left_box" type="box" size="0.3 0.5 0.3" material="wood_light"/>
+        <geom name="base_left_frame_b" type="box" size="0.305 0.505 0.05" pos="0 0 -0.25" material="metal_black"/>
+        <geom name="base_left_frame_t" type="box" size="0.305 0.505 0.02" pos="0 0 0.3" material="metal_black"/>
+      </body>
+
+      <!-- End Cap Cabinet (Right) -->
+      <body name="base_right" pos="0.9 0 0.3">
+        <geom name="base_right_box" type="box" size="0.3 0.5 0.3" material="wood_light"/>
+        <geom name="base_right_frame_b" type="box" size="0.305 0.505 0.05" pos="0 0 -0.25" material="metal_black"/>
+        <geom name="base_right_frame_t" type="box" size="0.305 0.505 0.02" pos="0 0 0.3" material="metal_black"/>
+      </body>
+
+
+      <!-- ================= CENTRAL FRAME ================= -->
+      <!-- Vertical posts -->
+      <geom name="post_left" type="box" size="0.02 0.02 0.7" pos="-1.15 0 0.7" material="metal_black"/>
+      <geom name="post_right" type="box" size="0.02 0.02 0.7" pos="1.15 0 0.7" material="metal_black"/>
+      
+      <!-- Top Crossbar -->
+      <geom name="crossbar_top" type="box" size="1.17 0.02 0.02" pos="0 0 1.38" material="metal_black"/>
+
+
+      <!-- ================= SHELVES ================= -->
+      
+      <!-- LOWER SHELVES (On top of base, angled) -->
+      <!-- Front Lower -->
+      <body name="shelf_lower_front" pos="0 -0.5 0.75" euler="15 0 0">
+        <geom name="slf_wood" type="box" size="1.2 0.3 0.02" material="wood_light"/>
+        <geom name="slf_rail" type="box" size="1.2 0.01 0.04" pos="0 -0.3 0.02" material="metal_black"/>
+        <!-- Side rails -->
+        <geom name="slf_rail_l" type="box" size="0.01 0.3 0.03" pos="-1.2 0 0.01" material="metal_black"/>
+        <geom name="slf_rail_r" type="box" size="0.01 0.3 0.03" pos="1.2 0 0.01" material="metal_black"/>
+        
+      </body>
+
+      <!-- Back Lower -->
+      <body name="shelf_lower_back" pos="0 0.5 0.75" euler="-15 0 0">
+        <geom name="slb_wood" type="box" size="1.2 0.3 0.02" material="wood_light"/>
+        <geom name="slb_rail" type="box" size="1.2 0.01 0.04" pos="0 0.3 0.02" material="metal_black"/>
+        <!-- Side rails -->
+        <geom name="slb_rail_l" type="box" size="0.01 0.3 0.03" pos="-1.2 0 0.01" material="metal_black"/>
+        <geom name="slb_rail_r" type="box" size="0.01 0.3 0.03" pos="1.2 0 0.01" material="metal_black"/>
+      </body>
+
+
+      <!-- UPPER SHELVES (Cantilevered from posts) -->
+      <!-- Front Upper -->
+      <body name="shelf_upper_front" pos="0 -0.35 1.15" euler="15 0 0">
+        <geom name="suf_wood" type="box" size="1.2 0.2 0.02" material="wood_light"/>
+        <geom name="suf_rail" type="box" size="1.2 0.01 0.03" pos="0 -0.2 0.02" material="metal_black"/>
+        <!-- Brackets -->
+        <geom name="suf_bracket_l" type="box" size="0.01 0.2 0.01" pos="-1.15 0 -0.03" material="metal_black"/>
+        <geom name="suf_bracket_r" type="box" size="0.01 0.2 0.01" pos="1.15 0 -0.03" material="metal_black"/>
+      </body>
+
+      <!-- Back Upper -->
+      <body name="shelf_upper_back" pos="0 0.35 1.15" euler="-15 0 0">
+        <geom name="sub_wood" type="box" size="1.2 0.2 0.02" material="wood_light"/>
+        <geom name="sub_rail" type="box" size="1.2 0.01 0.03" pos="0 0.2 0.02" material="metal_black"/>
+        <!-- Brackets -->
+        <geom name="sub_bracket_l" type="box" size="0.01 0.2 0.01" pos="-1.15 0 -0.03" material="metal_black"/>
+        <geom name="sub_bracket_r" type="box" size="0.01 0.2 0.01" pos="1.15 0 -0.03" material="metal_black"/>
+      </body>
+
+      <!-- ================= PRICE TAGS ================= -->
+      <body name="price_tags" pos="0 0 1.45">
+        <geom name="tag1" type="box" size="0.1 0.005 0.05" pos="-0.8 -0.02 0" material="price_tag_bg"/>
+        <geom name="tag2" type="box" size="0.1 0.005 0.05" pos="0 -0.02 0" material="price_tag_bg"/>
+        <geom name="tag3" type="box" size="0.1 0.005 0.05" pos="0.8 -0.02 0" material="price_tag_bg"/>
+      </body>
+
+    </body>
+  </worldbody>
+</mujoco>

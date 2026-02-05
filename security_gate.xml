@@ -1,0 +1,36 @@
+<mujoco model="security_gate">
+  <compiler angle="degree" coordinate="local"/>
+  <option timestep="0.002"/>
+
+  <asset>
+    <texture type="skybox" builtin="gradient" rgb1="1 1 1" rgb2="0.6 0.8 1" width="256" height="256"/>
+    <texture name="grid" type="2d" builtin="checker" rgb1=".1 .2 .3" rgb2=".2 .3 .4" width="300" height="300" mark="edge" markrgb=".2 .3 .4"/>
+    <material name="grid" texture="grid" texrepeat="2 2" texuniform="true" reflectance=".2"/>
+    
+    <!-- Materials for the gate -->
+    <material name="acrylic_clear" rgba="0.9 0.95 1.0 0.2" shininess="0.8" reflectance="0.3" specular="0.5"/>
+    <material name="base_metal" rgba="0.15 0.15 0.15 1" shininess="0.6" reflectance="0.4"/>
+    <material name="led_indicator" rgba="0 1 0 0.8" emission="0.8"/>
+    <material name="logo_text" rgba="0.8 0.8 0.8 1"/>
+  </asset>
+
+  <worldbody>
+    <light pos="0 0 3" dir="0 0 -1" directional="true"/>
+    <geom name="floor" size="3 3 .05" type="plane" material="grid" condim="3"/>
+
+    <!-- Single Gate Unit -->
+    <body name="gate" pos="0 0 0">
+      <!-- Base Unit -->
+      <geom name="base" type="box" size="0.25 0.08 0.1" pos="0 0 0.1" material="base_metal"/>
+      
+      <!-- Main Transparent Panel -->
+      <geom name="panel" type="box" size="0.25 0.01 0.7" pos="0 0 0.9" material="acrylic_clear"/>
+      
+      <!-- Decorative/Functional horizontal bars (simulating the antenna loops visible in transparent gates) -->
+      <geom name="wire_top" type="capsule" fromto="-0.2 0 1.4 0.2 0 1.4" size="0.002" material="logo_text"/>
+      <geom name="wire_mid" type="capsule" fromto="-0.2 0 1.0 0.2 0 1.0" size="0.002" material="logo_text"/>
+      <geom name="wire_bot" type="capsule" fromto="-0.2 0 0.6 0.2 0 0.6" size="0.002" material="logo_text"/>
+    </body>
+
+  </worldbody>
+</mujoco>

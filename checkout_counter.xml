@@ -1,0 +1,215 @@
+<mujoco model="checkout_counter">
+  <compiler angle="degree" coordinate="local" inertiafromgeom="true"/>
+  
+  <option timestep="0.01" gravity="0 0 -9.81" integrator="RK4"/>
+
+  <asset>
+    <texture type="skybox" builtin="gradient" rgb1="0.9 0.9 0.9" rgb2="0.5 0.5 0.5" width="512" height="307"/>
+    
+    <!-- Materials based on the reference image -->
+    <material name="mat_body_white" rgba="0.95 0.95 0.95 1" specular="0.3" shininess="0.2"/>
+    <material name="mat_trim_green" rgba="0.3 0.6 0.2 1" specular="0.5" shininess="0.5"/>
+    <material name="mat_belt_black" rgba="0.15 0.15 0.15 1" specular="0.1" shininess="0.1" roughness="0.8"/>
+    <material name="mat_stainless" rgba="0.7 0.7 0.75 1" specular="0.9" shininess="0.8" reflectance="0.3"/>
+    <material name="mat_plastic_grey" rgba="0.25 0.25 0.25 1" specular="0.3" shininess="0.3"/>
+    <material name="mat_screen" rgba="0.1 0.1 0.2 1" emission="0.5"/>
+    <material name="mat_red_sign" rgba="0.8 0.1 0.1 1" specular="0.3" shininess="0.2"/>
+    <material name="mat_metal_chrome" rgba="0.9 0.9 0.95 1" specular="1.0" shininess="0.9" reflectance="0.5"/>
+    <material name="mat_basket_wire" rgba="0.8 0.8 0.8 1" specular="0.8" shininess="0.8"/>
+  </asset>
+
+  <worldbody>
+    <light pos="2 2 4" dir="0 0 -1" diffuse="0.8 0.8 0.8"/>
+    <geom name="floor" type="plane" size="5 5 0.1" rgba="0.8 0.8 0.8 1"/>
+
+    <!-- ========================================== -->
+    <!--          LEFT CHECKOUT COUNTER             -->
+    <!-- ========================================== -->
+    <body name="checkout_unit_1" pos="0 1.0 0">
+        
+        <!-- 1. Conveyor Belt Section -->
+        <body name="conveyor_section_1" pos="-1.0 0 0">
+            <!-- Main Cabinet Base -->
+            <geom type="box" size="0.6 0.3 0.4" pos="0 0 0.4" material="mat_body_white"/>
+            <!-- Conveyor Belt Surface -->
+            <geom type="box" size="0.55 0.25 0.02" pos="0 0 0.82" material="mat_belt_black"/>
+            <!-- Green Bumper/Trim -->
+            <geom type="box" size="0.6 0.02 0.04" pos="0 -0.32 0.82" material="mat_trim_green"/>
+            <geom type="box" size="0.6 0.02 0.04" pos="0 0.32 0.82" material="mat_trim_green"/>
+            <geom type="box" size="0.02 0.34 0.04" pos="-0.62 0 0.82" material="mat_trim_green"/>
+            <!-- Kickplate -->
+            <geom type="box" size="0.55 0.25 0.05" pos="0 0 0.05" material="mat_plastic_grey"/>
+        </body>
+
+        <!-- 2. Cashier Station -->
+        <body name="cashier_station_1" pos="0 0 0">
+            <!-- Main Body -->
+            <geom type="box" size="0.4 0.3 0.4" pos="0 0 0.4" material="mat_body_white"/>
+            <!-- Countertop -->
+            <geom type="box" size="0.4 0.3 0.02" pos="0 0 0.82" material="mat_stainless"/>
+            <!-- Green Trim -->
+            <geom type="box" size="0.4 0.02 0.04" pos="0 -0.32 0.82" material="mat_trim_green"/>
+            <geom type="box" size="0.4 0.02 0.04" pos="0 0.32 0.82" material="mat_trim_green"/>
+            <!-- POS System -->
+            <body name="pos_system_1" pos="0 0.1 0.82">
+                <!-- Cash Drawer -->
+                <geom name="drawer_1" type="box" size="0.18 0.18 0.05" pos="0 0 0.05" material="mat_plastic_grey"/>
+                
+                <!-- Main Screen Stand -->
+                <geom name="stand_1" type="cylinder" size="0.02 0.08" pos="0 0.05 0.15" material="mat_metal_chrome"/>
+                
+                <!-- Main Screen (Facing Cashier +y) -->
+                <body name="screen_main_1" pos="0 0.08 0.25" euler="-15 0 0">
+                    <geom type="box" size="0.18 0.01 0.12" material="mat_plastic_grey"/> <!-- Bezel -->
+                    <geom type="box" size="0.17 0.001 0.11" pos="0 0.011 0" material="mat_screen"/> <!-- Screen -->
+                </body>
+
+                <!-- Customer Screen (Facing Customer -y) -->
+                <body name="screen_cust_1" pos="0 -0.05 0.28" euler="10 0 0">
+                     <geom type="box" size="0.1 0.01 0.06" material="mat_plastic_grey"/>
+                     <geom type="box" size="0.09 0.001 0.05" pos="0 -0.011 0" material="mat_screen"/>
+                </body>
+                
+                <!-- Keyboard -->
+                <geom name="keyboard_1" type="box" size="0.18 0.06 0.01" pos="0 0.25 0.02" euler="5 0 0" material="mat_plastic_grey"/>
+
+                <!-- Scanner Gun -->
+                <body name="scanner_1" pos="0.25 0 0.02" euler="0 0 -45">
+                    <geom type="box" size="0.03 0.05 0.02" material="mat_plastic_grey"/> <!-- Head -->
+                    <geom type="capsule" fromto="0 -0.05 0 0 -0.12 0" size="0.015" material="mat_plastic_grey"/> <!-- Handle -->
+                </body>
+            </body>
+        </body>
+
+        <!-- 3. Bagging Area -->
+        <body name="bagging_area_1" pos="0.9 0 0">
+            <!-- Main Cabinet -->
+            <geom type="box" size="0.5 0.3 0.4" pos="0 0 0.4" material="mat_body_white"/>
+            <!-- Sloped Surface or Tray -->
+            <geom type="box" size="0.48 0.28 0.02" pos="0 0 0.82" material="mat_stainless"/>
+            <!-- Green Trim -->
+            <geom type="box" size="0.5 0.02 0.04" pos="0 -0.32 0.82" material="mat_trim_green"/>
+            <geom type="box" size="0.5 0.02 0.04" pos="0 0.32 0.82" material="mat_trim_green"/>
+            <geom type="box" size="0.02 0.34 0.04" pos="0.52 0 0.82" material="mat_trim_green"/>
+            <!-- Divider bar -->
+            <geom type="capsule" fromto="-0.4 0 0.85 0.4 0 0.85" size="0.01" material="mat_metal_chrome"/>
+        </body>
+    </body>
+
+    <!-- ========================================== -->
+    <!--          RIGHT CHECKOUT COUNTER            -->
+    <!-- ========================================== -->
+    <body name="checkout_unit_2" pos="0 -1.0 0">
+        
+        <!-- 1. Conveyor Belt Section -->
+        <body name="conveyor_section_2" pos="-1.0 0 0">
+            <!-- Main Cabinet Base -->
+            <geom type="box" size="0.6 0.3 0.4" pos="0 0 0.4" material="mat_body_white"/>
+            <!-- Conveyor Belt Surface -->
+            <geom type="box" size="0.55 0.25 0.02" pos="0 0 0.82" material="mat_belt_black"/>
+            <!-- Green Bumper/Trim -->
+            <geom type="box" size="0.6 0.02 0.04" pos="0 -0.32 0.82" material="mat_trim_green"/>
+            <geom type="box" size="0.6 0.02 0.04" pos="0 0.32 0.82" material="mat_trim_green"/>
+            <geom type="box" size="0.02 0.34 0.04" pos="-0.62 0 0.82" material="mat_trim_green"/>
+            <!-- Kickplate -->
+            <geom type="box" size="0.55 0.25 0.05" pos="0 0 0.05" material="mat_plastic_grey"/>
+        </body>
+
+        <!-- 2. Cashier Station -->
+        <body name="cashier_station_2" pos="0 0 0">
+            <!-- Main Body -->
+            <geom type="box" size="0.4 0.3 0.4" pos="0 0 0.4" material="mat_body_white"/>
+            <!-- Countertop -->
+            <geom type="box" size="0.4 0.3 0.02" pos="0 0 0.82" material="mat_stainless"/>
+            <!-- Green Trim -->
+            <geom type="box" size="0.4 0.02 0.04" pos="0 -0.32 0.82" material="mat_trim_green"/>
+            <geom type="box" size="0.4 0.02 0.04" pos="0 0.32 0.82" material="mat_trim_green"/>
+            <!-- POS System -->
+            <body name="pos_system_2" pos="0 -0.1 0.82" euler="0 0 180">
+                <!-- Cash Drawer -->
+                <geom name="drawer_2" type="box" size="0.18 0.18 0.05" pos="0 0 0.05" material="mat_plastic_grey"/>
+                
+                <!-- Main Screen Stand -->
+                <geom name="stand_2" type="cylinder" size="0.02 0.08" pos="0 0.05 0.15" material="mat_metal_chrome"/>
+                
+                <!-- Main Screen (Facing Cashier -y due to body rotation) -->
+                <body name="screen_main_2" pos="0 0.08 0.25" euler="-15 0 0">
+                    <geom type="box" size="0.18 0.01 0.12" material="mat_plastic_grey"/> <!-- Bezel -->
+                    <geom type="box" size="0.17 0.001 0.11" pos="0 0.011 0" material="mat_screen"/> <!-- Screen -->
+                </body>
+
+                <!-- Customer Screen (Facing Customer +y due to body rotation) -->
+                <body name="screen_cust_2" pos="0 -0.05 0.28" euler="10 0 0">
+                     <geom type="box" size="0.1 0.01 0.06" material="mat_plastic_grey"/>
+                     <geom type="box" size="0.09 0.001 0.05" pos="0 -0.011 0" material="mat_screen"/>
+                </body>
+                
+                <!-- Keyboard -->
+                <geom name="keyboard_2" type="box" size="0.18 0.06 0.01" pos="0 0.25 0.02" euler="5 0 0" material="mat_plastic_grey"/>
+
+                <!-- Scanner Gun -->
+                <body name="scanner_2" pos="0.25 0 0.02" euler="0 0 -45">
+                    <geom type="box" size="0.03 0.05 0.02" material="mat_plastic_grey"/> <!-- Head -->
+                    <geom type="capsule" fromto="0 -0.05 0 0 -0.12 0" size="0.015" material="mat_plastic_grey"/> <!-- Handle -->
+                </body>
+            </body>
+        </body>
+
+        <!-- 3. Bagging Area -->
+        <body name="bagging_area_2" pos="0.9 0 0">
+            <!-- Main Cabinet -->
+            <geom type="box" size="0.5 0.3 0.4" pos="0 0 0.4" material="mat_body_white"/>
+            <!-- Sloped Surface or Tray -->
+            <geom type="box" size="0.48 0.28 0.02" pos="0 0 0.82" material="mat_stainless"/>
+            <!-- Green Trim -->
+            <geom type="box" size="0.5 0.02 0.04" pos="0 -0.32 0.82" material="mat_trim_green"/>
+            <geom type="box" size="0.5 0.02 0.04" pos="0 0.32 0.82" material="mat_trim_green"/>
+            <geom type="box" size="0.02 0.34 0.04" pos="0.52 0 0.82" material="mat_trim_green"/>
+            <!-- Divider bar -->
+            <geom type="capsule" fromto="-0.4 0 0.85 0.4 0 0.85" size="0.01" material="mat_metal_chrome"/>
+        </body>
+    </body>
+
+    <!-- ========================================== -->
+    <!--         SHARED CENTRAL BARRIER             -->
+    <!-- ========================================== -->
+    <body name="central_barrier" pos="0 0 0">
+         <!-- Long Railing dividing the two lanes -->
+         <!-- Length covers conveyor and cashier area mostly -->
+         
+         <!-- Post 1 (Near conveyor start) -->
+         <geom type="cylinder" size="0.02 0.45" pos="-1.5 0 0.45" material="mat_metal_chrome"/>
+         <!-- Post 2 (Middle) -->
+         <geom type="cylinder" size="0.02 0.45" pos="-0.5 0 0.45" material="mat_metal_chrome"/>
+         <!-- Post 3 (Near cashier) -->
+         <geom type="cylinder" size="0.02 0.45" pos="0.5 0 0.45" material="mat_metal_chrome"/>
+         
+         <!-- Horizontal Rails -->
+         <!-- Top Rail -->
+         <geom type="capsule" fromto="-1.5 0 0.8 0.5 0 0.8" size="0.02" material="mat_metal_chrome"/>
+         <!-- Bottom Rail -->
+         <geom type="capsule" fromto="-1.5 0 0.5 0.5 0 0.5" size="0.02" material="mat_metal_chrome"/>
+         
+         <!-- Entry Swing Gate (Attached to the start of the barrier) -->
+         <body name="entry_gate" pos="-1.5 0 0">
+            <geom type="cylinder" size="0.03 0.5" pos="0 0 0.5" material="mat_metal_chrome"/> <!-- Hinge Post -->
+            
+            <!-- Gate Swing Arm -->
+            <body name="gate_arm" pos="0 0 0.8" euler="0 0 0">
+                 <joint name="gate_hinge" axis="0 0 1" range="-90 90" damping="1"/>
+                 <!-- Frame -->
+                 <geom type="capsule" fromto="0 0 0 0.8 0 0" size="0.02" material="mat_metal_chrome"/>
+                 <geom type="capsule" fromto="0 0 -0.3 0.8 0 -0.3" size="0.02" material="mat_metal_chrome"/>
+                 <geom type="capsule" fromto="0.8 0 0 0.8 0 -0.3" size="0.02" material="mat_metal_chrome"/>
+                 <geom type="capsule" fromto="0.2 0 0 0.2 0 -0.3" size="0.02" material="mat_metal_chrome"/>
+                 
+                 <!-- Sign -->
+                 <geom type="box" size="0.1 0.005 0.08" pos="0.5 0 -0.15" material="mat_body_white"/>
+                 <geom type="cylinder" size="0.06 0.006" pos="0.5 0 -0.15" euler="90 0 0" material="mat_red_sign"/>
+                 <geom type="box" size="0.04 0.007 0.01" pos="0.5 0 -0.15" material="mat_body_white"/>
+            </body>
+         </body>
+    </body>
+
+  </worldbody>
+</mujoco>

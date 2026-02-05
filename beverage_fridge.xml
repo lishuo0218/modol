@@ -1,0 +1,257 @@
+<mujoco model="beverage_fridge">
+  <compiler angle="degree" coordinate="local"/>
+  <option timestep="0.01" gravity="0 0 -9.81"/>
+
+  <visual>
+    <headlight ambient="0.6 0.6 0.6"/>
+    <global offwidth="1920" offheight="1080"/>
+  </visual>
+
+  <asset>
+    <texture type="skybox" builtin="gradient" rgb1="0.9 0.9 1" rgb2="1 1 1" width="512" height="512"/>
+    
+    <!-- Materials -->
+    <!-- Optimized Materials for Realistic Look -->
+    <!-- Red Paint: High gloss, slightly metallic automotive finish -->
+    <material name="red_paint" rgba="0.8 0.05 0.05 1" specular="0.7" shininess="0.9" reflectance="0.2"/>
+    <!-- Black Plastic: Matte/Satin finish for trims -->
+    <material name="black_plastic" rgba="0.1 0.1 0.1 1" specular="0.3" shininess="0.3" roughness="0.5"/>
+    <!-- Glass: Highly transparent, reflective, slight blue tint -->
+    <material name="glass" rgba="0.85 0.9 1 0.2" specular="0.9" shininess="0.95" reflectance="0.3"/>
+    <!-- Metal Shelf: Chrome/Steel look, high specular and reflectance -->
+    <material name="metal_shelf" rgba="0.9 0.9 0.9 1" specular="0.9" shininess="0.8" reflectance="0.5"/>
+    <!-- White Plastic: Clean, glossy interior lining -->
+    <material name="white_plastic" rgba="0.95 0.95 0.95 1" specular="0.5" shininess="0.6" reflectance="0.1"/>
+    
+    <!-- Drink Materials -->
+    <material name="coke_can" rgba="0.8 0 0 1" specular="0.8" shininess="0.8"/>
+    <material name="sprite_bottle" rgba="0 0.6 0 0.8" specular="0.9" shininess="0.9"/>
+    <material name="water_bottle" rgba="0.7 0.7 1 0.5" specular="0.9" shininess="0.9"/>
+    <material name="orange_juice" rgba="1 0.5 0 1" specular="0.1" shininess="0.1"/>
+
+    <!-- New Coke Can Assets -->
+    <texture name="can_pattern" type="2d" builtin="checker" rgb1="0.85 0 0" rgb2="0.75 0 0" width="512" height="512" mark="cross" markrgb="0.8 0.8 0.8"/>
+    <material name="coke_red" texture="can_pattern" texuniform="true" rgba="0.85 0.0 0.0 1" specular="0.7" shininess="0.8"/>
+    <material name="aluminum" rgba="0.9 0.9 0.9 1" specular="0.9" shininess="0.9"/>
+    <material name="logo_white" rgba="0.95 0.95 0.95 1" specular="0.5" shininess="0.5"/>
+  </asset>
+
+  <actuator>
+    <!-- Optimized: gear=57.3 maps 0-120 input to 0-120 degrees (approx 2.1 rad) -->
+    <!-- Scaled kp down to 0.15 to maintain effective stiffness (approx 500) with high gear ratio -->
+    <position name="door_opener" joint="door_hinge" kp="0.15" ctrlrange="0 120" gear="57.29578"/>
+  </actuator>
+
+  <worldbody>
+    <light pos="2 2 4" dir="-1 -1 -1" diffuse="0.8 0.8 0.8"/>
+    <geom name="floor" type="plane" size="5 5 0.1" material="white_plastic" rgba="0.8 0.8 0.8 1"/>
+
+    <!-- Fridge Root -->
+    <body name="fridge" pos="0 0 0">
+      <!-- Cabinet Dimensions: 0.7m width, 0.7m depth, 2.0m height -->
+      <!-- Center of fridge is at (0,0,1) roughly -->
+      
+      <!-- Back Panel -->
+      <geom name="back" type="box" size="0.35 0.02 1.0" pos="0 0.35 1.0" material="red_paint"/>
+      
+      <!-- Side Panels -->
+      <geom name="left_side" type="box" size="0.02 0.35 1.0" pos="-0.33 0 1.0" material="red_paint"/>
+      <geom name="right_side" type="box" size="0.02 0.35 1.0" pos="0.33 0 1.0" material="red_paint"/>
+      
+      <!-- Top Panel -->
+      <geom name="top" type="box" size="0.35 0.35 0.02" pos="0 0 1.98" material="red_paint"/>
+      
+      <!-- Bottom Panel (Base/Compressor area) -->
+      <geom name="bottom" type="box" size="0.35 0.35 0.1" pos="0 0 0.1" material="black_plastic"/>
+      
+      <!-- Top Header (Logo area) -->
+      <geom name="header" type="box" size="0.35 0.35 0.1" pos="0 0 1.88" material="red_paint"/>
+
+      <!-- Vent Grill (Visual) -->
+      <geom name="vent" type="box" size="0.3 0.01 0.08" pos="0 -0.34 0.1" material="black_plastic"/>
+
+      <!-- Shelves -->
+      <!-- Shelf 1 (Bottom) -->
+      <geom name="shelf1" type="box" size="0.31 0.3 0.01" pos="0 0 0.5" material="metal_shelf"/>
+      <!-- Shelf 2 -->
+      <geom name="shelf2" type="box" size="0.31 0.3 0.01" pos="0 0 0.85" material="metal_shelf"/>
+      <!-- Shelf 3 -->
+      <geom name="shelf3" type="box" size="0.31 0.3 0.01" pos="0 0 1.2" material="metal_shelf"/>
+      <!-- Shelf 4 -->
+      <geom name="shelf4" type="box" size="0.31 0.3 0.01" pos="0 0 1.55" material="metal_shelf"/>
+
+      <!-- Glass Door -->
+      <!-- Moved door slightly forward (y=-0.375) to prevent collision with fridge cabinet front (y=-0.35) -->
+      <body name="door" pos="0.33 -0.375 1.0">
+        <!-- Added stiffness to keep door closed by default (spring-loaded hinge effect) -->
+        <!-- Optimized: Increased damping (8.0) for smooth motion and stiffness (12.0) for firm closing -->
+        <joint name="door_hinge" type="hinge" axis="0 0 1" pos="0 0 0" range="0 120" damping="8.0" stiffness="12" springref="0"/>
+        
+        <!-- Door Frame -->
+        <!-- Left vertical frame (hinge side) -->
+        <geom name="door_frame_left" type="box" size="0.02 0.02 0.88" pos="-0.02 0 0" material="black_plastic"/>
+        <!-- Right vertical frame -->
+        <geom name="door_frame_right" type="box" size="0.02 0.02 0.88" pos="-0.64 0 0" material="black_plastic"/>
+        <!-- Top horizontal frame -->
+        <geom name="door_frame_top" type="box" size="0.33 0.02 0.02" pos="-0.33 0 0.86" material="black_plastic"/>
+        <!-- Bottom horizontal frame -->
+        <geom name="door_frame_bottom" type="box" size="0.33 0.02 0.02" pos="-0.33 0 -0.86" material="black_plastic"/>
+        
+        <!-- Glass Pane -->
+        <geom name="door_glass" type="box" size="0.31 0.005 0.84" pos="-0.33 0 0" material="glass"/>
+        
+        <!-- Handle -->
+        <geom name="handle" type="box" size="0.02 0.03 0.15" pos="-0.6 0.05 0" material="black_plastic"/>
+      </body>
+    </body>
+
+        <!-- Beverages (Generated Grid) -->
+
+    <!-- Shelf 1 -->
+        <body name="coke_1" pos="-0.240 -0.200 0.580">
+      <freejoint />
+      <geom name="can_bottom_rim_1" type="cylinder" size="0.033 0.0025" pos="0 0 -0.059" material="aluminum" mass="0.02" />
+      <geom name="can_middle_1" type="cylinder" size="0.033 0.055" pos="0 0 -0.0015" material="coke_red" mass="0.30" />
+      <geom name="can_top_rim_1" type="cylinder" size="0.032 0.004" pos="0 0 0.0575" material="aluminum" mass="0.02" />
+      <geom name="logo_strip_1" type="ellipsoid" size="0.034 0.034 0.015" pos="0 0 0.01" euler="15 0 0" material="logo_white" contype="0" conaffinity="0" mass="0" />
+      <geom name="can_top_1" type="cylinder" size="0.031 0.001" pos="0 0 0.0616" material="aluminum" contype="0" conaffinity="0" mass="0.005" />
+      <geom name="pull_tab_1" type="box" size="0.008 0.012 0.001" pos="0.005 0 0.063" material="aluminum" contype="0" conaffinity="0" mass="0.001" />
+    </body>
+    <body name="coke_2" pos="-0.080 -0.200 0.580">
+      <freejoint />
+      <geom name="can_bottom_rim_2" type="cylinder" size="0.033 0.0025" pos="0 0 -0.059" material="aluminum" mass="0.02" />
+      <geom name="can_middle_2" type="cylinder" size="0.033 0.055" pos="0 0 -0.0015" material="coke_red" mass="0.30" />
+      <geom name="can_top_rim_2" type="cylinder" size="0.032 0.004" pos="0 0 0.0575" material="aluminum" mass="0.02" />
+      <geom name="logo_strip_2" type="ellipsoid" size="0.034 0.034 0.015" pos="0 0 0.01" euler="15 0 0" material="logo_white" contype="0" conaffinity="0" mass="0" />
+      <geom name="can_top_2" type="cylinder" size="0.031 0.001" pos="0 0 0.0616" material="aluminum" contype="0" conaffinity="0" mass="0.005" />
+      <geom name="pull_tab_2" type="box" size="0.008 0.012 0.001" pos="0.005 0 0.063" material="aluminum" contype="0" conaffinity="0" mass="0.001" />
+    </body>
+    <body name="coke_3" pos="0.080 -0.200 0.580">
+      <freejoint />
+      <geom name="can_bottom_rim_3" type="cylinder" size="0.033 0.0025" pos="0 0 -0.059" material="aluminum" mass="0.02" />
+      <geom name="can_middle_3" type="cylinder" size="0.033 0.055" pos="0 0 -0.0015" material="coke_red" mass="0.30" />
+      <geom name="can_top_rim_3" type="cylinder" size="0.032 0.004" pos="0 0 0.0575" material="aluminum" mass="0.02" />
+      <geom name="logo_strip_3" type="ellipsoid" size="0.034 0.034 0.015" pos="0 0 0.01" euler="15 0 0" material="logo_white" contype="0" conaffinity="0" mass="0" />
+      <geom name="can_top_3" type="cylinder" size="0.031 0.001" pos="0 0 0.0616" material="aluminum" contype="0" conaffinity="0" mass="0.005" />
+      <geom name="pull_tab_3" type="box" size="0.008 0.012 0.001" pos="0.005 0 0.063" material="aluminum" contype="0" conaffinity="0" mass="0.001" />
+    </body>
+    <body name="coke_4" pos="0.240 -0.200 0.580">
+      <freejoint />
+      <geom name="can_bottom_rim_4" type="cylinder" size="0.033 0.0025" pos="0 0 -0.059" material="aluminum" mass="0.02" />
+      <geom name="can_middle_4" type="cylinder" size="0.033 0.055" pos="0 0 -0.0015" material="coke_red" mass="0.30" />
+      <geom name="can_top_rim_4" type="cylinder" size="0.032 0.004" pos="0 0 0.0575" material="aluminum" mass="0.02" />
+      <geom name="logo_strip_4" type="ellipsoid" size="0.034 0.034 0.015" pos="0 0 0.01" euler="15 0 0" material="logo_white" contype="0" conaffinity="0" mass="0" />
+      <geom name="can_top_4" type="cylinder" size="0.031 0.001" pos="0 0 0.0616" material="aluminum" contype="0" conaffinity="0" mass="0.005" />
+      <geom name="pull_tab_4" type="box" size="0.008 0.012 0.001" pos="0.005 0 0.063" material="aluminum" contype="0" conaffinity="0" mass="0.001" />
+    </body>
+    <body name="coke_5" pos="-0.240 -0.200 0.930">
+      <freejoint />
+      <geom name="can_bottom_rim_5" type="cylinder" size="0.033 0.0025" pos="0 0 -0.059" material="aluminum" mass="0.02" />
+      <geom name="can_middle_5" type="cylinder" size="0.033 0.055" pos="0 0 -0.0015" material="coke_red" mass="0.30" />
+      <geom name="can_top_rim_5" type="cylinder" size="0.032 0.004" pos="0 0 0.0575" material="aluminum" mass="0.02" />
+      <geom name="logo_strip_5" type="ellipsoid" size="0.034 0.034 0.015" pos="0 0 0.01" euler="15 0 0" material="logo_white" contype="0" conaffinity="0" mass="0" />
+      <geom name="can_top_5" type="cylinder" size="0.031 0.001" pos="0 0 0.0616" material="aluminum" contype="0" conaffinity="0" mass="0.005" />
+      <geom name="pull_tab_5" type="box" size="0.008 0.012 0.001" pos="0.005 0 0.063" material="aluminum" contype="0" conaffinity="0" mass="0.001" />
+    </body>
+    <body name="coke_6" pos="-0.080 -0.200 0.930">
+      <freejoint />
+      <geom name="can_bottom_rim_6" type="cylinder" size="0.033 0.0025" pos="0 0 -0.059" material="aluminum" mass="0.02" />
+      <geom name="can_middle_6" type="cylinder" size="0.033 0.055" pos="0 0 -0.0015" material="coke_red" mass="0.30" />
+      <geom name="can_top_rim_6" type="cylinder" size="0.032 0.004" pos="0 0 0.0575" material="aluminum" mass="0.02" />
+      <geom name="logo_strip_6" type="ellipsoid" size="0.034 0.034 0.015" pos="0 0 0.01" euler="15 0 0" material="logo_white" contype="0" conaffinity="0" mass="0" />
+      <geom name="can_top_6" type="cylinder" size="0.031 0.001" pos="0 0 0.0616" material="aluminum" contype="0" conaffinity="0" mass="0.005" />
+      <geom name="pull_tab_6" type="box" size="0.008 0.012 0.001" pos="0.005 0 0.063" material="aluminum" contype="0" conaffinity="0" mass="0.001" />
+    </body>
+    <body name="coke_7" pos="0.080 -0.200 0.930">
+      <freejoint />
+      <geom name="can_bottom_rim_7" type="cylinder" size="0.033 0.0025" pos="0 0 -0.059" material="aluminum" mass="0.02" />
+      <geom name="can_middle_7" type="cylinder" size="0.033 0.055" pos="0 0 -0.0015" material="coke_red" mass="0.30" />
+      <geom name="can_top_rim_7" type="cylinder" size="0.032 0.004" pos="0 0 0.0575" material="aluminum" mass="0.02" />
+      <geom name="logo_strip_7" type="ellipsoid" size="0.034 0.034 0.015" pos="0 0 0.01" euler="15 0 0" material="logo_white" contype="0" conaffinity="0" mass="0" />
+      <geom name="can_top_7" type="cylinder" size="0.031 0.001" pos="0 0 0.0616" material="aluminum" contype="0" conaffinity="0" mass="0.005" />
+      <geom name="pull_tab_7" type="box" size="0.008 0.012 0.001" pos="0.005 0 0.063" material="aluminum" contype="0" conaffinity="0" mass="0.001" />
+    </body>
+    <body name="coke_8" pos="0.240 -0.200 0.930">
+      <freejoint />
+      <geom name="can_bottom_rim_8" type="cylinder" size="0.033 0.0025" pos="0 0 -0.059" material="aluminum" mass="0.02" />
+      <geom name="can_middle_8" type="cylinder" size="0.033 0.055" pos="0 0 -0.0015" material="coke_red" mass="0.30" />
+      <geom name="can_top_rim_8" type="cylinder" size="0.032 0.004" pos="0 0 0.0575" material="aluminum" mass="0.02" />
+      <geom name="logo_strip_8" type="ellipsoid" size="0.034 0.034 0.015" pos="0 0 0.01" euler="15 0 0" material="logo_white" contype="0" conaffinity="0" mass="0" />
+      <geom name="can_top_8" type="cylinder" size="0.031 0.001" pos="0 0 0.0616" material="aluminum" contype="0" conaffinity="0" mass="0.005" />
+      <geom name="pull_tab_8" type="box" size="0.008 0.012 0.001" pos="0.005 0 0.063" material="aluminum" contype="0" conaffinity="0" mass="0.001" />
+    </body>
+    <body name="coke_9" pos="-0.240 -0.200 1.280">
+      <freejoint />
+      <geom name="can_bottom_rim_9" type="cylinder" size="0.033 0.0025" pos="0 0 -0.059" material="aluminum" mass="0.02" />
+      <geom name="can_middle_9" type="cylinder" size="0.033 0.055" pos="0 0 -0.0015" material="coke_red" mass="0.30" />
+      <geom name="can_top_rim_9" type="cylinder" size="0.032 0.004" pos="0 0 0.0575" material="aluminum" mass="0.02" />
+      <geom name="logo_strip_9" type="ellipsoid" size="0.034 0.034 0.015" pos="0 0 0.01" euler="15 0 0" material="logo_white" contype="0" conaffinity="0" mass="0" />
+      <geom name="can_top_9" type="cylinder" size="0.031 0.001" pos="0 0 0.0616" material="aluminum" contype="0" conaffinity="0" mass="0.005" />
+      <geom name="pull_tab_9" type="box" size="0.008 0.012 0.001" pos="0.005 0 0.063" material="aluminum" contype="0" conaffinity="0" mass="0.001" />
+    </body>
+    <body name="coke_10" pos="-0.080 -0.200 1.280">
+      <freejoint />
+      <geom name="can_bottom_rim_10" type="cylinder" size="0.033 0.0025" pos="0 0 -0.059" material="aluminum" mass="0.02" />
+      <geom name="can_middle_10" type="cylinder" size="0.033 0.055" pos="0 0 -0.0015" material="coke_red" mass="0.30" />
+      <geom name="can_top_rim_10" type="cylinder" size="0.032 0.004" pos="0 0 0.0575" material="aluminum" mass="0.02" />
+      <geom name="logo_strip_10" type="ellipsoid" size="0.034 0.034 0.015" pos="0 0 0.01" euler="15 0 0" material="logo_white" contype="0" conaffinity="0" mass="0" />
+      <geom name="can_top_10" type="cylinder" size="0.031 0.001" pos="0 0 0.0616" material="aluminum" contype="0" conaffinity="0" mass="0.005" />
+      <geom name="pull_tab_10" type="box" size="0.008 0.012 0.001" pos="0.005 0 0.063" material="aluminum" contype="0" conaffinity="0" mass="0.001" />
+    </body>
+    <body name="coke_11" pos="0.080 -0.200 1.280">
+      <freejoint />
+      <geom name="can_bottom_rim_11" type="cylinder" size="0.033 0.0025" pos="0 0 -0.059" material="aluminum" mass="0.02" />
+      <geom name="can_middle_11" type="cylinder" size="0.033 0.055" pos="0 0 -0.0015" material="coke_red" mass="0.30" />
+      <geom name="can_top_rim_11" type="cylinder" size="0.032 0.004" pos="0 0 0.0575" material="aluminum" mass="0.02" />
+      <geom name="logo_strip_11" type="ellipsoid" size="0.034 0.034 0.015" pos="0 0 0.01" euler="15 0 0" material="logo_white" contype="0" conaffinity="0" mass="0" />
+      <geom name="can_top_11" type="cylinder" size="0.031 0.001" pos="0 0 0.0616" material="aluminum" contype="0" conaffinity="0" mass="0.005" />
+      <geom name="pull_tab_11" type="box" size="0.008 0.012 0.001" pos="0.005 0 0.063" material="aluminum" contype="0" conaffinity="0" mass="0.001" />
+    </body>
+    <body name="coke_12" pos="0.240 -0.200 1.280">
+      <freejoint />
+      <geom name="can_bottom_rim_12" type="cylinder" size="0.033 0.0025" pos="0 0 -0.059" material="aluminum" mass="0.02" />
+      <geom name="can_middle_12" type="cylinder" size="0.033 0.055" pos="0 0 -0.0015" material="coke_red" mass="0.30" />
+      <geom name="can_top_rim_12" type="cylinder" size="0.032 0.004" pos="0 0 0.0575" material="aluminum" mass="0.02" />
+      <geom name="logo_strip_12" type="ellipsoid" size="0.034 0.034 0.015" pos="0 0 0.01" euler="15 0 0" material="logo_white" contype="0" conaffinity="0" mass="0" />
+      <geom name="can_top_12" type="cylinder" size="0.031 0.001" pos="0 0 0.0616" material="aluminum" contype="0" conaffinity="0" mass="0.005" />
+      <geom name="pull_tab_12" type="box" size="0.008 0.012 0.001" pos="0.005 0 0.063" material="aluminum" contype="0" conaffinity="0" mass="0.001" />
+    </body>
+    <body name="coke_13" pos="-0.240 -0.200 1.630">
+      <freejoint />
+      <geom name="can_bottom_rim_13" type="cylinder" size="0.033 0.0025" pos="0 0 -0.059" material="aluminum" mass="0.02" />
+      <geom name="can_middle_13" type="cylinder" size="0.033 0.055" pos="0 0 -0.0015" material="coke_red" mass="0.30" />
+      <geom name="can_top_rim_13" type="cylinder" size="0.032 0.004" pos="0 0 0.0575" material="aluminum" mass="0.02" />
+      <geom name="logo_strip_13" type="ellipsoid" size="0.034 0.034 0.015" pos="0 0 0.01" euler="15 0 0" material="logo_white" contype="0" conaffinity="0" mass="0" />
+      <geom name="can_top_13" type="cylinder" size="0.031 0.001" pos="0 0 0.0616" material="aluminum" contype="0" conaffinity="0" mass="0.005" />
+      <geom name="pull_tab_13" type="box" size="0.008 0.012 0.001" pos="0.005 0 0.063" material="aluminum" contype="0" conaffinity="0" mass="0.001" />
+    </body>
+    <body name="coke_14" pos="-0.080 -0.200 1.630">
+      <freejoint />
+      <geom name="can_bottom_rim_14" type="cylinder" size="0.033 0.0025" pos="0 0 -0.059" material="aluminum" mass="0.02" />
+      <geom name="can_middle_14" type="cylinder" size="0.033 0.055" pos="0 0 -0.0015" material="coke_red" mass="0.30" />
+      <geom name="can_top_rim_14" type="cylinder" size="0.032 0.004" pos="0 0 0.0575" material="aluminum" mass="0.02" />
+      <geom name="logo_strip_14" type="ellipsoid" size="0.034 0.034 0.015" pos="0 0 0.01" euler="15 0 0" material="logo_white" contype="0" conaffinity="0" mass="0" />
+      <geom name="can_top_14" type="cylinder" size="0.031 0.001" pos="0 0 0.0616" material="aluminum" contype="0" conaffinity="0" mass="0.005" />
+      <geom name="pull_tab_14" type="box" size="0.008 0.012 0.001" pos="0.005 0 0.063" material="aluminum" contype="0" conaffinity="0" mass="0.001" />
+    </body>
+    <body name="coke_15" pos="0.080 -0.200 1.630">
+      <freejoint />
+      <geom name="can_bottom_rim_15" type="cylinder" size="0.033 0.0025" pos="0 0 -0.059" material="aluminum" mass="0.02" />
+      <geom name="can_middle_15" type="cylinder" size="0.033 0.055" pos="0 0 -0.0015" material="coke_red" mass="0.30" />
+      <geom name="can_top_rim_15" type="cylinder" size="0.032 0.004" pos="0 0 0.0575" material="aluminum" mass="0.02" />
+      <geom name="logo_strip_15" type="ellipsoid" size="0.034 0.034 0.015" pos="0 0 0.01" euler="15 0 0" material="logo_white" contype="0" conaffinity="0" mass="0" />
+      <geom name="can_top_15" type="cylinder" size="0.031 0.001" pos="0 0 0.0616" material="aluminum" contype="0" conaffinity="0" mass="0.005" />
+      <geom name="pull_tab_15" type="box" size="0.008 0.012 0.001" pos="0.005 0 0.063" material="aluminum" contype="0" conaffinity="0" mass="0.001" />
+    </body>
+    <body name="coke_16" pos="0.240 -0.200 1.630">
+      <freejoint />
+      <geom name="can_bottom_rim_16" type="cylinder" size="0.033 0.0025" pos="0 0 -0.059" material="aluminum" mass="0.02" />
+      <geom name="can_middle_16" type="cylinder" size="0.033 0.055" pos="0 0 -0.0015" material="coke_red" mass="0.30" />
+      <geom name="can_top_rim_16" type="cylinder" size="0.032 0.004" pos="0 0 0.0575" material="aluminum" mass="0.02" />
+      <geom name="logo_strip_16" type="ellipsoid" size="0.034 0.034 0.015" pos="0 0 0.01" euler="15 0 0" material="logo_white" contype="0" conaffinity="0" mass="0" />
+      <geom name="can_top_16" type="cylinder" size="0.031 0.001" pos="0 0 0.0616" material="aluminum" contype="0" conaffinity="0" mass="0.005" />
+      <geom name="pull_tab_16" type="box" size="0.008 0.012 0.001" pos="0.005 0 0.063" material="aluminum" contype="0" conaffinity="0" mass="0.001" />
+    </body>
+
+  </worldbody>
+</mujoco>

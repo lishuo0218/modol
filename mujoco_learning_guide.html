@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MuJoCo MJCF (.xml) 终极权威指南</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --secondary: #475569;
+            --accent: #f59e0b;
+            --bg: #f8fafc;
+            --text: #1e293b;
+            --code-bg: #1e1e1e;
+            --code-text: #d4d4d4;
+            --sidebar-width: 300px;
+            --border-radius: 8px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        * { box-sizing: border-box; }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.7;
+            color: var(--text);
+            background-color: var(--bg);
+            margin: 0;
+            display: flex;
+        }
+
+        /* Sidebar Navigation */
+        nav {
+            width: var(--sidebar-width);
+            background: white;
+            height: 100vh;
+            position: fixed;
+            overflow-y: auto;
+            border-right: 1px solid #e2e8f0;
+            padding: 20px 15px 20px 20px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.02);
+            z-index: 100;
+        }
+
+        nav .logo {
+            padding: 10px 0 20px 0;
+            font-weight: 800;
+            font-size: 1.4em;
+            color: var(--primary);
+            border-bottom: 2px solid #f1f5f9;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        nav h3 {
+            color: var(--secondary);
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-top: 30px;
+            margin-bottom: 12px;
+            padding-left: 5px;
+            font-weight: 800;
+            border-left: 3px solid var(--primary);
+            padding-left: 10px;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        nav li { margin-bottom: 4px; }
+
+        nav a {
+            text-decoration: none;
+            color: #64748b;
+            font-size: 0.9em;
+            display: block;
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            position: relative;
+            margin-left: 5px;
+        }
+
+        nav a:hover {
+            background-color: #eff6ff;
+            color: var(--primary);
+            transform: translateX(3px);
+        }
+
+        /* Main Content */
+        main {
+            margin-left: var(--sidebar-width);
+            padding: 60px 80px;
+            max-width: 1100px;
+            width: 100%;
+        }
+
+        h1 { 
+            font-size: 2.8em; 
+            color: var(--primary-dark); 
+            margin-bottom: 10px; 
+            letter-spacing: -0.5px;
+        }
+        
+        h1 + p {
+            font-size: 1.2em;
+            color: var(--secondary);
+            margin-bottom: 50px;
+        }
+
+        /* Section Category Title (Virtual) */
+        .category-title {
+            font-size: 1em;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--primary);
+            margin-top: 80px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        
+        .category-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e2e8f0;
+            margin-left: 20px;
+        }
+
+        h2 { 
+            font-size: 1.8em; 
+            margin-top: 0; 
+            margin-bottom: 25px;
+            color: #0f172a; 
+            border-bottom: 2px solid #e2e8f0; 
+            padding-bottom: 15px; 
+            position: relative;
+        }
+
+        h2 .number {
+            color: var(--primary);
+            margin-right: 10px;
+            font-weight: 300;
+        }
+
+        h3 { 
+            font-size: 1.4em; 
+            margin-top: 35px; 
+            margin-bottom: 15px;
+            color: #334155; 
+        }
+
+        p { margin-bottom: 18px; }
+
+        /* Code Blocks */
+        pre {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+            box-shadow: var(--shadow);
+            position: relative;
+            margin: 25px 0;
+        }
+
+        pre::before {
+            content: '';
+            display: block;
+            height: 12px;
+            width: 12px;
+            background: #ff5f56;
+            border-radius: 50%;
+            box-shadow: 20px 0 0 #ffbd2e, 40px 0 0 #27c93f;
+            margin-bottom: 15px;
+            opacity: 0.8;
+        }
+
+        code {
+            font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9em;
+        }
+        
+        p code, li code, td code {
+            background-color: #e2e8f0;
+            color: #be185d;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            border: 1px solid #cbd5e1;
+        }
+
+        /* XML Highlighting Colors */
+        .tag { color: #569cd6; }
+        .attr { color: #9cdcfe; }
+        .val { color: #ce9178; }
+        .comment { color: #6a9955; font-style: italic; }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 30px 0;
+            background: white;
+            box-shadow: var(--shadow);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f8fafc;
+            font-weight: 700;
+            color: var(--secondary);
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background-color: #fcfcfc; }
+
+        /* Alerts/Notes */
+        .note {
+            background-color: #eff6ff;
+            border-left: 5px solid var(--primary);
+            padding: 20px;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+            margin: 30px 0;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .note::before {
+            content: '💡';
+            margin-right: 15px;
+            font-size: 1.2em;
+        }
+
+        .warning {
+            background-color: #fff7ed;
+            border-left: 5px solid var(--accent);
+            padding: 20px;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+            margin: 30px 0;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .warning::before {
+            content: '⚠️';
+            margin-right: 15px;
+            font-size: 1.2em;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7em;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-left: 10px;
+            vertical-align: middle;
+            letter-spacing: 0.5px;
+        }
+        .badge-core { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+        .badge-adv { background: #fce7f3; color: #9d174d; border: 1px solid #fbcfe8; }
+
+        /* Lists */
+        ul { padding-left: 20px; }
+        li { margin-bottom: 10px; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            nav { display: none; }
+            main { margin-left: 0; padding: 20px; }
+        }
+
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="logo">📘 MJCF 指南</div>
+    
+    <h3>1. 基础概念</h3>
+    <ul>
+        <li><a href="#intro">1.1 简介与结构</a></li>
+        <li><a href="#coords">1.2 坐标系与变换</a></li>
+    </ul>
+    
+    <h3>2. 物理建模</h3>
+    <ul>
+        <li><a href="#bodies">2.1 刚体 (Body)</a></li>
+        <li><a href="#geoms">2.2 几何体 (Geom)</a></li>
+        <li><a href="#joints">2.3 关节 (Joint)</a></li>
+    </ul>
+    
+    <h3>3. 高级物理</h3>
+    <ul>
+        <li><a href="#contact">3.1 碰撞过滤</a></li>
+        <li><a href="#solver">3.2 求解器 (Solref/Solimp)</a></li>
+    </ul>
+    
+    <h3>4. 驱动与感知</h3>
+    <ul>
+        <li><a href="#actuators">4.1 执行器 (Actuator)</a></li>
+        <li><a href="#tendons">4.2 肌腱 (Tendon)</a></li>
+        <li><a href="#sensors">4.3 传感器 (Sensor)</a></li>
+    </ul>
+    
+    <h3>5. 系统设置</h3>
+    <ul>
+        <li><a href="#assets">5.1 资源与渲染 (Asset)</a></li>
+        <li><a href="#options">5.2 仿真选项 (Option)</a></li>
+    </ul>
+</nav>
+
+<main>
+    <header>
+        <h1>MuJoCo MJCF (.xml) 权威指南</h1>
+        <p>从入门到精通：一份为机器人开发者定制的深度技术参考手册。</p>
+    </header>
+
+    <div class="category-title">1. 基础概念</div>
+
+    <section id="intro">
+        <h2><span class="number">1.1</span>简介与文件结构</h2>
+        <p>MJCF (MuJoCo XML File) 是一种基于 XML 的分层建模语言。不同于 URDF 的平铺式结构，MJCF 采用<strong>嵌套树状结构</strong>，这使得相对坐标的定义非常直观。</p>
+        
+        <div class="note">
+            <div>
+                <strong>核心原则：</strong> 子物体的坐标系总是相对于父物体的坐标系定义的。这大大简化了多关节机器人的建模工作。
+            </div>
+        </div>
+
+        <h3>标准文件骨架</h3>
+        <pre><code class="xml"><span class="tag">&lt;mujoco</span> <span class="attr">model</span>=<span class="val">"my_robot"</span><span class="tag">&gt;</span>
+    <span class="comment">&lt;!-- 1. 编译与仿真选项 --&gt;</span>
+    <span class="tag">&lt;compiler</span> <span class="attr">angle</span>=<span class="val">"degree"</span> <span class="tag">/&gt;</span>
+    <span class="tag">&lt;option</span> <span class="attr">timestep</span>=<span class="val">"0.002"</span> <span class="tag">/&gt;</span>
+
+    <span class="comment">&lt;!-- 2. 资源库 (纹理、网格、材质) --&gt;</span>
+    <span class="tag">&lt;asset&gt;</span>...<span class="tag">&lt;/asset&gt;</span>
+
+    <span class="comment">&lt;!-- 3. 默认属性类 (类似 CSS class) --&gt;</span>
+    <span class="tag">&lt;default&gt;</span>...<span class="tag">&lt;/default&gt;</span>
+
+    <span class="comment">&lt;!-- 4. 物理世界 (核心) --&gt;</span>
+    <span class="tag">&lt;worldbody&gt;</span>
+        <span class="tag">&lt;body</span> <span class="attr">name</span>=<span class="val">"base"</span><span class="tag">&gt;</span>
+            <span class="tag">&lt;joint</span> ... <span class="tag">/&gt;</span>
+            <span class="tag">&lt;geom</span> ... <span class="tag">/&gt;</span>
+            <span class="tag">&lt;body</span> <span class="attr">name</span>=<span class="val">"link1"</span><span class="tag">&gt;</span> ... <span class="tag">&lt;/body&gt;</span>
+        <span class="tag">&lt;/body&gt;</span>
+    <span class="tag">&lt;/worldbody&gt;</span>
+
+    <span class="comment">&lt;!-- 5. 驱动与传感器 --&gt;</span>
+    <span class="tag">&lt;actuator&gt;</span>...<span class="tag">&lt;/actuator&gt;</span>
+    <span class="tag">&lt;sensor&gt;</span>...<span class="tag">&lt;/sensor&gt;</span>
+<span class="tag">&lt;/mujoco&gt;</span></code></pre>
+    </section>
+
+    <section id="coords">
+        <h2><span class="number">1.2</span>坐标系与变换 (Coordinate Systems)</h2>
+        <p>理解 MuJoCo 的坐标变换是建模的关键。每个 body 都有自己的局部坐标系 (Frame)。</p>
+
+        <h3>关键属性</h3>
+        <ul>
+            <li><code>pos="x y z"</code>: 子物体原点相对于父物体原点的位移。</li>
+            <li><code>quat="w x y z"</code>: 四元数旋转 (MuJoCo 内部首选)。</li>
+            <li><code>euler="rx ry rz"</code>: 欧拉角旋转 (建模时更直观)。</li>
+        </ul>
+
+        <div class="warning">
+            <div>
+                <strong>注意：</strong> 默认情况下，MuJoCo 的欧拉角顺序是 "xyz" (Extrinsic)。如果需要改变，可以在 <code>&lt;compiler eulerseq="..."/&gt;</code> 中设置。
+            </div>
+        </div>
+    </section>
+
+    <div class="category-title">2. 物理建模</div>
+
+    <section id="bodies">
+        <h2><span class="number">2.1</span>刚体 (Body) <span class="badge badge-core">Core</span></h2>
+        <p><code>&lt;body&gt;</code> 是运动学树的节点。它本身没有质量或形状，仅仅是一个坐标系框架 (Frame) 和惯性容器。</p>
+        <p>刚体的质量和惯性通常由其内部的 <code>&lt;geom&gt;</code> 自动计算得出，除非显式使用 <code>&lt;inertial&gt;</code> 标签指定。</p>
+    </section>
+
+    <section id="geoms">
+        <h2><span class="number">2.2</span>几何体 (Geom) <span class="badge badge-core">Core</span></h2>
+        <p><code>&lt;geom&gt;</code> 定义了物体的形状、碰撞属性和视觉外观。</p>
+
+        <h3>常用类型 (type)</h3>
+        <table>
+            <thead>
+                <tr><th>类型</th><th>尺寸参数 (size)</th><th>说明</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>box</code></td><td>半长 (x, y, z)</td><td>长方体，<code>size="0.1 0.2 0.3"</code> 代表长0.2, 宽0.4, 高0.6</td></tr>
+                <tr><td><code>sphere</code></td><td>半径</td><td>球体</td></tr>
+                <tr><td><code>cylinder</code></td><td>半径, 半高</td><td>圆柱体</td></tr>
+                <tr><td><code>capsule</code></td><td>半径, 半高</td><td>胶囊体 (两端半球，中间圆柱)，比圆柱体碰撞更稳定</td></tr>
+                <tr><td><code>mesh</code></td><td>缩放 (x, y, z)</td><td>引用 <code>&lt;asset&gt;</code> 中的网格资源</td></tr>
+                <tr><td><code>plane</code></td><td>半长 (x, y), 间距</td><td>无限平面 (通常做地面)</td></tr>
+            </tbody>
+        </table>
+
+        <h3>关键物理属性</h3>
+        <ul>
+            <li><code>friction="滑动 滚动 扭转"</code>: 摩擦系数。通常只设置第一个 (滑动摩擦)，如 <code>1.0</code>。</li>
+            <li><code>density</code>: 密度 (默认 1000 kg/m³)。用于自动计算质量。</li>
+            <li><code>mass</code>: 显式指定质量 (会覆盖 density)。</li>
+            <li><code>group</code>: 视觉分组 (0-2 可见，3+ 通常隐藏或用于辅助)。</li>
+        </ul>
+    </section>
+
+    <section id="joints">
+        <h2><span class="number">2.3</span>关节 (Joint) <span class="badge badge-core">Core</span></h2>
+        <p>关节定义了自由度 (DOF)。如果一个 Body 没有关节，它将与父级固连 (焊接)。</p>
+
+        <h3>关节类型</h3>
+        <ul>
+            <li><code>hinge</code>: 旋转关节 (1 DOF)。最常用。需指定 <code>axis</code> (旋转轴)。</li>
+            <li><code>slide</code>: 滑动关节 (1 DOF)。直线运动。</li>
+            <li><code>ball</code>: 球铰 (3 DOF)。旋转自由，无位移。</li>
+            <li><code>free</code>: 自由关节 (6 DOF)。允许物体在空间中自由漂浮 (如无人机、未固定的物体)。</li>
+        </ul>
+
+        <h3>动力学属性</h3>
+        <ul>
+            <li><code>range="min max"</code>: 运动范围限制 (弧度或米)。</li>
+            <li><code>damping</code>: 阻尼系数 (粘性摩擦)。防止关节无限摆动。</li>
+            <li><code>stiffness</code>: 弹簧刚度。设为非0值会使关节像弹簧一样回中。</li>
+            <li><code>armature</code>: 转子惯量。<strong>重要技巧</strong>：给关节加少量 armature (如 0.01) 可以显著提高仿真稳定性。</li>
+        </ul>
+    </section>
+
+    <div class="category-title">3. 高级物理</div>
+
+    <section id="contact">
+        <h2><span class="number">3.1</span>碰撞过滤 (Advanced Collision) <span class="badge badge-adv">Advanced</span></h2>
+        <p>MuJoCo 提供了强大的碰撞过滤机制，通过位掩码 (Bitmask) 控制。</p>
+        
+        <h3>Contype 与 Conaffinity</h3>
+        <p>两个物体 A 和 B 发生碰撞的条件是：</p>
+        <pre><code>(A.contype & B.conaffinity) || (B.contype & A.conaffinity) != 0</code></pre>
+        <ul>
+            <li><code>contype</code>: "我是什么类型的物体" (ID)。</li>
+            <li><code>conaffinity</code>: "我能撞什么类型的物体" (Mask)。</li>
+        </ul>
+
+        <h3>示例场景</h3>
+        <pre><code class="xml"><span class="tag">&lt;default&gt;</span>
+    <span class="comment">&lt;!-- 机器人(1): 能撞地面(2) --&gt;</span>
+    <span class="tag">&lt;default</span> <span class="attr">class</span>=<span class="val">"robot"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;geom</span> <span class="attr">contype</span>=<span class="val">"1"</span> <span class="attr">conaffinity</span>=<span class="val">"2"</span><span class="tag">/&gt;</span>
+    <span class="tag">&lt;/default&gt;</span>
+    
+    <span class="comment">&lt;!-- 地面(2): 能撞机器人(1) --&gt;</span>
+    <span class="tag">&lt;default</span> <span class="attr">class</span>=<span class="val">"floor"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;geom</span> <span class="attr">contype</span>=<span class="val">"2"</span> <span class="attr">conaffinity</span>=<span class="val">"1"</span><span class="tag">/&gt;</span>
+    <span class="tag">&lt;/default&gt;</span>
+    
+    <span class="comment">&lt;!-- 纯视觉物体: 谁都不撞 --&gt;</span>
+    <span class="tag">&lt;default</span> <span class="attr">class</span>=<span class="val">"visual_only"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;geom</span> <span class="attr">contype</span>=<span class="val">"0"</span> <span class="attr">conaffinity</span>=<span class="val">"0"</span><span class="tag">/&gt;</span>
+    <span class="tag">&lt;/default&gt;</span>
+<span class="tag">&lt;/default&gt;</span></code></pre>
+    </section>
+
+    <section id="solver">
+        <h2><span class="number">3.2</span>求解器参数 (Solref & Solimp) <span class="badge badge-adv">Advanced</span></h2>
+        <p>这是控制接触"软硬度"的核心参数，直接影响仿真的稳定性。</p>
+
+        <h3>Solref (Solver Reference)</h3>
+        <p>格式: <code>solref="timeconst dampratio"</code></p>
+        <ul>
+            <li><strong>timeconst (时间常数)</strong>: 刚度指标。值越小越硬。例如 <code>0.001</code> 非常硬，<code>0.02</code> 像硬橡胶。</li>
+            <li><strong>dampratio (阻尼比)</strong>: 1.0 为临界阻尼 (无震荡)，&lt;1 欠阻尼 (弹簧)，&gt;1 过阻尼 (海绵)。</li>
+        </ul>
+
+        <h3>Solimp (Solver Impedance)</h3>
+        <p>控制约束力随穿透深度变化的曲线。通常使用默认值，但在抓取任务中可能需要调整以增加摩擦稳定性。</p>
+    </section>
+
+    <div class="category-title">4. 驱动与感知</div>
+
+    <section id="actuators">
+        <h2><span class="number">4.1</span>执行器 (Actuator)</h2>
+        <p>没有执行器，机器人只能随重力摆动。</p>
+
+        <ul>
+            <li><strong>Position (位置伺服)</strong>: 输入为目标角度。
+                <br><code>&lt;position joint="j1" kp="100"/&gt;</code> (kp 是 P 增益)
+            </li>
+            <li><strong>Velocity (速度伺服)</strong>: 输入为目标角速度。
+                <br><code>&lt;velocity joint="j1" kv="10"/&gt;</code>
+            </li>
+            <li><strong>Motor (力矩控制)</strong>: 输入为直接力矩/力。
+                <br><code>&lt;motor joint="j1" gear="1"/&gt;</code> (最接近真实电机电流控制)
+            </li>
+        </ul>
+    </section>
+
+    <section id="tendons">
+        <h2><span class="number">4.2</span>肌腱 (Tendon) <span class="badge badge-adv">Advanced</span></h2>
+        <p>用于模拟复杂的传动系统。</p>
+        <ul>
+            <li><code>fixed</code>: 固定传动比耦合。例如：模拟机械手手指的耦合运动 (一个电机驱动两个关节)。</li>
+            <li><code>spatial</code>: 空间肌腱。模拟绳索穿过滑轮 (site) 的路径。可以自动计算绳索长度变化并施加力。</li>
+        </ul>
+    </section>
+
+    <section id="sensors">
+        <h2><span class="number">4.3</span>传感器 (Sensor)</h2>
+        <p>定义仿真器输出的观测数据。</p>
+        <pre><code class="xml"><span class="tag">&lt;sensor&gt;</span>
+    <span class="comment">&lt;!-- 关节传感器 --&gt;</span>
+    <span class="tag">&lt;jointpos</span> <span class="attr">joint</span>=<span class="val">"knee"</span><span class="tag">/&gt;</span>
+    <span class="tag">&lt;jointvel</span> <span class="attr">joint</span>=<span class="val">"knee"</span><span class="tag">/&gt;</span>
+
+    <span class="comment">&lt;!-- IMU (需绑定到 site) --&gt;</span>
+    <span class="tag">&lt;accelerometer</span> <span class="attr">site</span>=<span class="val">"imu_site"</span><span class="tag">/&gt;</span>
+    <span class="tag">&lt;gyro</span> <span class="attr">site</span>=<span class="val">"imu_site"</span><span class="tag">/&gt;</span>
+
+    <span class="comment">&lt;!-- 接触传感器 (Touch) --&gt;</span>
+    <span class="tag">&lt;touch</span> <span class="attr">site</span>=<span class="val">"fingertip"</span> <span class="attr">name</span>=<span class="val">"touch_sensor"</span><span class="tag">/&gt;</span>
+    
+    <span class="comment">&lt;!-- 力/力矩传感器 (F/T) --&gt;</span>
+    <span class="tag">&lt;force</span> <span class="attr">site</span>=<span class="val">"wrist"</span><span class="tag">/&gt;</span>
+    <span class="tag">&lt;torque</span> <span class="attr">site</span>=<span class="val">"wrist"</span><span class="tag">/&gt;</span>
+<span class="tag">&lt;/sensor&gt;</span></code></pre>
+    </section>
+
+    <div class="category-title">5. 系统设置</div>
+
+    <section id="assets">
+        <h2><span class="number">5.1</span>资源与渲染 (Asset)</h2>
+        <p>管理复用的资源，如网格 (Mesh)、纹理 (Texture) 和材质 (Material)。</p>
+        <ul>
+            <li><code>&lt;mesh file="part.stl" /&gt;</code>: 导入 STL/OBJ 模型。</li>
+            <li><code>&lt;texture type="skybox" ... /&gt;</code>: 定义天空盒。</li>
+            <li><code>&lt;material name="mat" rgba="1 0 0 1" /&gt;</code>: 定义材质颜色和反光属性。</li>
+        </ul>
+    </section>
+
+    <section id="options">
+        <h2><span class="number">5.2</span>仿真选项 (Option)</h2>
+        <ul>
+            <li><code>timestep</code>: 积分步长。默认 0.002 (2ms)。对于高速碰撞或复杂机器人，可能需要减小到 0.001 或更小。</li>
+            <li><code>integrator</code>: 积分器类型。<code>Euler</code> (一阶) 或 <code>RK4</code> (四阶)。Euler 稳定性更好，通常首选。</li>
+            <li><code>gravity</code>: 重力向量。默认 "0 0 -9.81"。</li>
+        </ul>
+    </section>
+
+</main>
+
+</body>
+</html>

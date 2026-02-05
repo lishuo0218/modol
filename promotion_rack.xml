@@ -1,0 +1,117 @@
+<mujoco model="promotion_rack_3tier">
+  <compiler angle="degree" coordinate="local" />
+  <option timestep="0.01" gravity="0 0 -9.81" />
+
+  <asset>
+    <!-- Materials based on visual description: Dark frame, Teak wood shelves, White railings -->
+    <material name="mat_frame" rgba="0.2 0.2 0.2 1" specular="0.5" shininess="0.5" />
+    <material name="mat_wood" rgba="0.6 0.4 0.2 1" specular="0.1" shininess="0.1" texture="tex_wood_procedural" />
+    <material name="mat_rail" rgba="0.9 0.9 0.9 1" specular="0.8" shininess="0.8" />
+    
+    <!-- Procedural wood texture for better look -->
+    <texture name="tex_wood_procedural" type="cube" builtin="flat" rgb1="0.6 0.4 0.2" rgb2="0.5 0.3 0.1" width="512" height="512" mark="random" markrgb="0.4 0.3 0.2"/>
+  </asset>
+
+  <default>
+    <default class="leg">
+      <geom type="box" size="0.02 0.02 0.45" material="mat_frame" />
+    </default>
+    <default class="shelf">
+      <geom type="box" size="0.4 0.4 0.015" material="mat_wood" />
+    </default>
+    <default class="rail_post">
+      <geom type="cylinder" size="0.005 0.03" material="mat_rail" />
+    </default>
+    <default class="rail_bar">
+      <geom type="capsule" size="0.005 0.38" material="mat_rail" /> <!-- Length fits between posts -->
+    </default>
+  </default>
+
+  <worldbody>
+    <!-- Lighting -->
+    <light pos="2 2 4" dir="0 0 -1" diffuse="0.8 0.8 0.8" />
+    <!-- Floor for reference -->
+    <geom name="floor" type="plane" size="2 2 0.1" rgba="0.9 0.9 0.9 0.5" />
+
+    <body name="rack_unit" pos="0 0 0">
+      <!-- LEGS (H=900mm) -->
+      <!-- Front Left -->
+      <geom name="leg_FL" class="leg" pos="0.38 0.38 0.45" />
+      <!-- Front Right -->
+      <geom name="leg_FR" class="leg" pos="0.38 -0.38 0.45" />
+      <!-- Back Left -->
+      <geom name="leg_BL" class="leg" pos="-0.38 0.38 0.45" />
+      <!-- Back Right -->
+      <geom name="leg_BR" class="leg" pos="-0.38 -0.38 0.45" />
+
+      <!-- SHELF 1 (Bottom) -->
+      <body name="shelf_1_body" pos="0 0 0.15">
+        <geom name="shelf_1" class="shelf" />
+        <!-- Frame supports under shelf -->
+        <geom name="support_1_f" type="box" size="0.02 0.36 0.02" pos="0.38 0 -0.035" material="mat_frame" />
+        <geom name="support_1_b" type="box" size="0.02 0.36 0.02" pos="-0.38 0 -0.035" material="mat_frame" />
+        <geom name="support_1_l" type="box" size="0.36 0.02 0.02" pos="0 0.38 -0.035" material="mat_frame" />
+        <geom name="support_1_r" type="box" size="0.36 0.02 0.02" pos="0 -0.38 -0.035" material="mat_frame" />
+        
+        <!-- Railings -->
+        <!-- Posts -->
+        <geom name="s1_post_fl" class="rail_post" pos="0.38 0.38 0.045" />
+        <geom name="s1_post_fr" class="rail_post" pos="0.38 -0.38 0.045" />
+        <geom name="s1_post_bl" class="rail_post" pos="-0.38 0.38 0.045" />
+        <geom name="s1_post_br" class="rail_post" pos="-0.38 -0.38 0.045" />
+        <!-- Bars -->
+        <geom name="s1_rail_f" class="rail_bar" pos="0.38 0 0.06" euler="90 0 0" />
+        <geom name="s1_rail_b" class="rail_bar" pos="-0.38 0 0.06" euler="90 0 0" />
+        <geom name="s1_rail_l" class="rail_bar" pos="0 0.38 0.06" euler="0 90 0" />
+        <geom name="s1_rail_r" class="rail_bar" pos="0 -0.38 0.06" euler="0 90 0" />
+      </body>
+
+      <!-- SHELF 2 (Middle) -->
+      <body name="shelf_2_body" pos="0 0 0.525">
+        <geom name="shelf_2" class="shelf" />
+        <!-- Frame supports -->
+        <geom name="support_2_f" type="box" size="0.02 0.36 0.02" pos="0.38 0 -0.035" material="mat_frame" />
+        <geom name="support_2_b" type="box" size="0.02 0.36 0.02" pos="-0.38 0 -0.035" material="mat_frame" />
+        <geom name="support_2_l" type="box" size="0.36 0.02 0.02" pos="0 0.38 -0.035" material="mat_frame" />
+        <geom name="support_2_r" type="box" size="0.36 0.02 0.02" pos="0 -0.38 -0.035" material="mat_frame" />
+
+        <!-- Railings -->
+        <geom name="s2_post_fl" class="rail_post" pos="0.38 0.38 0.045" />
+        <geom name="s2_post_fr" class="rail_post" pos="0.38 -0.38 0.045" />
+        <geom name="s2_post_bl" class="rail_post" pos="-0.38 0.38 0.045" />
+        <geom name="s2_post_br" class="rail_post" pos="-0.38 -0.38 0.045" />
+        <geom name="s2_rail_f" class="rail_bar" pos="0.38 0 0.06" euler="90 0 0" />
+        <geom name="s2_rail_b" class="rail_bar" pos="-0.38 0 0.06" euler="90 0 0" />
+        <geom name="s2_rail_l" class="rail_bar" pos="0 0.38 0.06" euler="0 90 0" />
+        <geom name="s2_rail_r" class="rail_bar" pos="0 -0.38 0.06" euler="0 90 0" />
+      </body>
+
+      <!-- SHELF 3 (Top) -->
+      <body name="shelf_3_body" pos="0 0 0.9">
+        <geom name="shelf_3" class="shelf" />
+        <!-- Frame supports -->
+        <geom name="support_3_f" type="box" size="0.02 0.36 0.02" pos="0.38 0 -0.035" material="mat_frame" />
+        <geom name="support_3_b" type="box" size="0.02 0.36 0.02" pos="-0.38 0 -0.035" material="mat_frame" />
+        <geom name="support_3_l" type="box" size="0.36 0.02 0.02" pos="0 0.38 -0.035" material="mat_frame" />
+        <geom name="support_3_r" type="box" size="0.36 0.02 0.02" pos="0 -0.38 -0.035" material="mat_frame" />
+
+        <!-- Railings -->
+        <geom name="s3_post_fl" class="rail_post" pos="0.38 0.38 0.045" />
+        <geom name="s3_post_fr" class="rail_post" pos="0.38 -0.38 0.045" />
+        <geom name="s3_post_bl" class="rail_post" pos="-0.38 0.38 0.045" />
+        <geom name="s3_post_br" class="rail_post" pos="-0.38 -0.38 0.045" />
+        <geom name="s3_rail_f" class="rail_bar" pos="0.38 0 0.06" euler="90 0 0" />
+        <geom name="s3_rail_b" class="rail_bar" pos="-0.38 0 0.06" euler="90 0 0" />
+        <geom name="s3_rail_l" class="rail_bar" pos="0 0.38 0.06" euler="0 90 0" />
+        <geom name="s3_rail_r" class="rail_bar" pos="0 -0.38 0.06" euler="0 90 0" />
+      </body>
+
+      <!-- Feet -->
+      <geom name="foot_fl" type="box" size="0.022 0.022 0.005" pos="0.38 0.38 0.0025" material="mat_frame" />
+      <geom name="foot_fr" type="box" size="0.022 0.022 0.005" pos="0.38 -0.38 0.0025" material="mat_frame" />
+      <geom name="foot_bl" type="box" size="0.022 0.022 0.005" pos="-0.38 0.38 0.0025" material="mat_frame" />
+      <geom name="foot_br" type="box" size="0.022 0.022 0.005" pos="-0.38 -0.38 0.0025" material="mat_frame" />
+
+    </body>
+  </worldbody>
+</mujoco>

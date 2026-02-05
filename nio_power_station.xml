@@ -40,10 +40,11 @@
     
     <!-- Glass (Transparent) -->
     <material name="mat_glass" rgba="0.6 0.7 0.8 0.3" reflectance="0.5" shininess="0.95" specular="1.0"/>
+    <material name="mat_roof_transparent" rgba="0.1 0.1 0.12 0.3" reflectance="0.1" shininess="0.3" specular="0.3"/>
     
     <!-- Emissive Materials (Lighting) -->
     <material name="mat_light_strip" rgba="0.9 0.9 1.0 1" emission="1.0"/>
-    <material name="mat_nio_blue_glow" rgba="0.0 0.8 1.0 1" emission="0.8"/>
+    <material name="mat_nio_blue_glow" rgba="0.0 0.9 1.0 1" emission="1.0" reflectance="0.1"/>
     <material name="mat_screen_glow" rgba="0.2 0.6 1.0 1" emission="0.6"/>
     <material name="mat_light_green" rgba="0 1 0 1" emission="1.0"/>
     <material name="mat_light_red" rgba="1 0 0 1" emission="1.0"/>
@@ -150,7 +151,27 @@
         <geom name="text_line_2" type="box" size="0.3 0.11 0.02" pos="3.8 0 0.4" material="mat_wall_silver"/>
       </body>
       
-      <geom name="wall_right" type="box" size="5.25 0.1 1.55" pos="0 -3.2 1.65" material="mat_wall_silver"/>
+      <!-- Right Wall (Parking Bay) - Dual Layer (Silver Out, Dark Grey In) -->
+      <body name="wall_right_group" pos="0 -3.2 1.65">
+        <!-- Panel 1 -->
+        <geom name="wr_panel_1_in" type="box" size="1.2 0.05 1.55" pos="4.1 0.05 0" material="mat_wall_dark_grey"/>
+        <geom name="wr_panel_1_out" type="box" size="1.2 0.05 1.55" pos="4.1 -0.05 0" material="mat_wall_silver"/>
+        <geom name="wr_seam_1" type="box" size="0.01 0.105 1.55" pos="2.85 0 0" material="mat_frame_black"/>
+        
+        <!-- Panel 2 -->
+        <geom name="wr_panel_2_in" type="box" size="1.3 0.05 1.55" pos="1.5 0.05 0" material="mat_wall_dark_grey"/>
+        <geom name="wr_panel_2_out" type="box" size="1.3 0.05 1.55" pos="1.5 -0.05 0" material="mat_wall_silver"/>
+        <geom name="wr_seam_2" type="box" size="0.01 0.105 1.55" pos="0.15 0 0" material="mat_frame_black"/>
+        
+        <!-- Panel 3 -->
+        <geom name="wr_panel_3_in" type="box" size="1.3 0.05 1.55" pos="-1.2 0.05 0" material="mat_wall_dark_grey"/>
+        <geom name="wr_panel_3_out" type="box" size="1.3 0.05 1.55" pos="-1.2 -0.05 0" material="mat_wall_silver"/>
+        <geom name="wr_seam_3" type="box" size="0.01 0.105 1.55" pos="-2.55 0 0" material="mat_frame_black"/>
+        
+        <!-- Panel 4 -->
+        <geom name="wr_panel_4_in" type="box" size="1.3 0.05 1.55" pos="-3.9 0.05 0" material="mat_wall_dark_grey"/>
+        <geom name="wr_panel_4_out" type="box" size="1.3 0.05 1.55" pos="-3.9 -0.05 0" material="mat_wall_silver"/>
+      </body>
       <!-- Back Frame (Exit) -->
       <body name="back_frame" pos="-5.35 0 1.65">
         <geom name="b_frame_top" type="box" size="0.2 3.2 0.3" pos="0 0 1.25" material="mat_frame_black"/>
@@ -178,6 +199,8 @@
         
         <!-- Blue Neon Slogan: "车电分离..." -->
         <body name="neon_sign_top" pos="0.1 0 1.8">
+             <!-- Added point light for glow effect -->
+             <light name="light_nio_blue_glow" pos="0.1 0 0" dir="1 0 0" attenuation="0.5 0.5 0.5" diffuse="0.0 0.8 1.0" specular="0.5 0.8 1.0" castshadow="false"/>
              <geom name="neon_glow_strip" type="box" size="0.05 2.5 0.1" material="mat_nio_blue_glow"/>
              <!-- Simulated Characters (blocks) -->
              <geom name="char_1" type="box" size="0.06 0.1 0.08" pos="0 2.0 0" material="mat_nio_blue_glow"/>
@@ -205,6 +228,14 @@
           <geom name="control_box_1" type="box" size="0.3 0.05 0.4" pos="1.0 0 0" material="mat_metal_grey"/>
           <geom name="control_box_2" type="box" size="0.2 0.05 0.3" pos="2.0 0 0.2" material="mat_metal_grey"/>
           <geom name="cable_tray" type="box" size="5.0 0.02 0.05" pos="0 0 0.8" material="mat_frame_black"/>
+          
+          <!-- Decorative Panels / Fire Safety -->
+          <geom name="safety_panel_1" type="box" size="0.4 0.02 0.6" pos="-1.5 0 0" material="mat_wall_silver"/>
+          <geom name="extinguisher_box" type="box" size="0.15 0.05 0.25" pos="-1.5 0 -0.5" material="mat_sinopec_red"/>
+          
+          <!-- Warning Signs -->
+          <geom name="sign_voltage" type="box" size="0.15 0.01 0.1" pos="1.0 0.06 0.5" material="mat_warning_yellow"/>
+          <geom name="sign_no_entry" type="box" size="0.15 0.01 0.1" pos="2.0 0.06 0.6" material="mat_warning_yellow"/>
       </body>
 
       <body name="swap_platform" pos="1.5 0 0.2">
@@ -350,7 +381,7 @@
       <!-- ================= "Other Half": Power Module / Storage Unit ================= -->
       <body name="storage_unit" pos="0 5.3 0">
         <geom name="store_floor" type="box" size="5.25 2.1 0.1" pos="0 0 0.1" material="mat_floor_concrete"/>
-        <geom name="store_roof" type="box" size="5.35 2.1 0.1" pos="0 0 3.2" material="mat_frame_black"/>
+        <geom name="store_roof" type="box" size="5.35 2.1 0.1" pos="0 0 3.2" material="mat_roof_transparent"/>
         <body name="store_wall_left_group" pos="0 2.0 1.65">
              <geom name="swl_p1" type="box" size="1.0 0.1 1.55" pos="4.2 0 0" material="mat_wall_silver"/>
              <geom name="swl_s1" type="box" size="0.01 0.105 1.55" pos="3.15 0 0" material="mat_frame_black"/>
@@ -366,63 +397,176 @@
         <body name="store_front_group" pos="5.25 0 1.65">
              <geom name="sf_panel_1" type="box" size="0.1 0.65 1.55" pos="0 1.35 0" material="mat_wall_silver"/>
              <geom name="sf_seam_1" type="box" size="0.105 0.01 1.55" pos="0 0.69 0" material="mat_frame_black"/>
+             
+             <!-- Center Panel with Ventilation Grilles -->
              <geom name="sf_panel_2" type="box" size="0.1 0.65 1.55" pos="0 0.03 0" material="mat_wall_silver"/>
+             <!-- Horizontal Grilles (replacing square decorations if any) -->
+             <geom name="vent_h1" type="box" size="0.11 0.5 0.02" pos="0 0.03 -0.5" material="mat_frame_black"/>
+             <geom name="vent_h2" type="box" size="0.11 0.5 0.02" pos="0 0.03 -0.6" material="mat_frame_black"/>
+             <geom name="vent_h3" type="box" size="0.11 0.5 0.02" pos="0 0.03 -0.7" material="mat_frame_black"/>
+
              <geom name="sf_seam_2" type="box" size="0.105 0.01 1.55" pos="0 -0.63 0" material="mat_frame_black"/>
              <geom name="sf_panel_3" type="box" size="0.1 0.65 1.55" pos="0 -1.29 0" material="mat_wall_silver"/>
 
-             <!-- Large NIO Logo (Sky and Earth) -->
-             <body name="nio_logo_large" pos="0.11 0 0.5" euler="0 0 90">
-                  <!-- Sky (Arch) -->
-                  <geom name="logo_sky_l" type="cylinder" size="0.3 0.05" pos="0 0.2 0" material="mat_text_white"/> 
-                  <geom name="logo_sky_mask" type="box" size="0.35 0.2 0.06" pos="0 0 0" material="mat_wall_silver"/> <!-- Mask lower half -->
-                  <!-- Earth (Chevron/Line) -->
-                  <geom name="logo_earth_l" type="box" size="0.3 0.04 0.05" pos="0 -0.2 0" material="mat_text_white"/>
-             </body>
+
         </body>
         
-        <!-- Slogan: "Make Charging More Convenient Than Refueling" -->
-        <body name="slogan_group" pos="5.36 0 2.2" euler="0 0 90">
-             <!-- Simulated Chinese Characters -->
-             <geom name="sl_1" type="box" size="0.15 0.01 0.15" pos="-1.2 0 0" material="mat_text_white"/> <!-- 让 -->
-             <geom name="sl_2" type="box" size="0.15 0.01 0.15" pos="-0.8 0 0" material="mat_text_white"/> <!-- 加 -->
-             <geom name="sl_3" type="box" size="0.15 0.01 0.15" pos="-0.4 0 0" material="mat_text_white"/> <!-- 电 -->
-             <geom name="sl_4" type="box" size="0.15 0.01 0.15" pos="0.0 0 0" material="mat_text_white"/> <!-- 比 -->
-             <geom name="sl_5" type="box" size="0.15 0.01 0.15" pos="0.4 0 0" material="mat_text_white"/> <!-- 加 -->
-             <geom name="sl_6" type="box" size="0.15 0.01 0.15" pos="0.8 0 0" material="mat_text_white"/> <!-- 油 -->
-             <geom name="sl_7" type="box" size="0.15 0.01 0.15" pos="1.2 0 0" material="mat_text_white"/> <!-- 更 -->
-             <geom name="sl_8" type="box" size="0.15 0.01 0.15" pos="1.6 0 0" material="mat_text_white"/> <!-- 方 -->
-             <geom name="sl_9" type="box" size="0.15 0.01 0.15" pos="2.0 0 0" material="mat_text_white"/> <!-- 便 -->
-        </body>
+
 
         <geom name="store_wall_back" type="box" size="0.1 2.0 1.55" pos="-5.35 0 1.65" material="mat_wall_silver"/>
 
-        <body name="service_door" pos="-5.45 0 1.2">
-            <geom name="door_panel" type="box" size="0.02 0.8 1.0" material="mat_wall_silver"/>
-            <geom name="door_handle" type="box" size="0.05 0.02 0.1" pos="0 -0.6 0" material="mat_frame_black"/>
-            <geom name="door_frame" type="box" size="0.01 0.82 1.02" pos="-0.01 0 0" material="mat_door_seam"/>
+        <body name="service_door" pos="-5.48 0 1.1">
+            <geom name="door_panel" type="box" size="0.02 0.5 1.0" material="mat_metal_grey"/>
+            <geom name="door_handle" type="box" size="0.05 0.02 0.1" pos="0 -0.4 0" material="mat_frame_black"/>
+            <geom name="door_frame" type="box" size="0.01 0.52 1.02" pos="-0.01 0 0" material="mat_frame_black"/>
         </body>
         
-        <body name="vents_storage" pos="-2.0 2.06 1.0"> 
-            <geom name="vent_s1" type="box" size="0.8 0.02 0.05" pos="0 0 0.6" material="mat_frame_black"/>
-            <geom name="vent_s2" type="box" size="0.8 0.02 0.05" pos="0 0 0.4" material="mat_frame_black"/>
-            <geom name="vent_s3" type="box" size="0.8 0.02 0.05" pos="0 0 0.2" material="mat_frame_black"/>
-        </body>
+
 
         <body name="logo_storage" pos="2.0 2.11 2.2" euler="90 0 0">
              <geom name="logo_sky_s" type="cylinder" size="0.4 0.02" pos="0 0.3 0" material="mat_frame_black"/> 
              <geom name="logo_earth_s" type="box" size="0.4 0.05 0.02" pos="0 -0.3 0" material="mat_frame_black"/>
         </body>
         
-        <body name="battery_rack_internal" pos="0 0 1.5">
-             <geom name="rack_structure_main" type="box" size="4.0 1.0 1.4" material="mat_interior_dark"/>
-             <geom name="pack_row_1" type="box" size="3.8 0.25 0.15" pos="0 -0.5 0" material="mat_battery_pack"/>
-             <geom name="pack_row_2" type="box" size="3.8 0.25 0.15" pos="0 0 0" material="mat_battery_pack"/>
-             <geom name="pack_row_3" type="box" size="3.8 0.25 0.15" pos="0 0.5 0" material="mat_battery_pack"/>
-             <geom name="div_1" type="box" size="0.02 1.0 1.4" pos="0 0 0" material="mat_frame_black"/>
-             <geom name="div_2" type="box" size="0.02 1.0 1.4" pos="1.0 0 0" material="mat_frame_black"/>
-             <geom name="div_3" type="box" size="0.02 1.0 1.4" pos="-1.0 0 0" material="mat_frame_black"/>
-             <geom name="div_4" type="box" size="0.02 1.0 1.4" pos="2.0 0 0" material="mat_frame_black"/>
-             <geom name="div_5" type="box" size="0.02 1.0 1.4" pos="-2.0 0 0" material="mat_frame_black"/>
+        <!-- 1. Battery Storage Area -->
+        <body name="battery_storage_area" pos="0 1.2 1.5">
+             <!-- Battery Racks -->
+             <geom name="rack_structure_main" type="box" size="4.0 0.6 1.4" material="mat_interior_dark"/>
+             <geom name="pack_row_1" type="box" size="3.8 0.25 0.15" pos="0 -0.2 0" material="mat_battery_pack"/>
+             <geom name="pack_row_2" type="box" size="3.8 0.25 0.15" pos="0 0.2 0" material="mat_battery_pack"/>
+             <geom name="pack_row_3" type="box" size="3.8 0.25 0.15" pos="0 0.6 0" material="mat_battery_pack"/>
+             
+             <!-- Vertical Dividers -->
+             <geom name="div_1" type="box" size="0.02 0.6 1.4" pos="0 0 0" material="mat_frame_black"/>
+             <geom name="div_2" type="box" size="0.02 0.6 1.4" pos="1.0 0 0" material="mat_frame_black"/>
+             <geom name="div_3" type="box" size="0.02 0.6 1.4" pos="-1.0 0 0" material="mat_frame_black"/>
+             <geom name="div_4" type="box" size="0.02 0.6 1.4" pos="2.0 0 0" material="mat_frame_black"/>
+             <geom name="div_5" type="box" size="0.02 0.6 1.4" pos="-2.0 0 0" material="mat_frame_black"/>
+
+             <!-- Monitoring & Safety -->
+             <geom name="temp_monitor" type="box" size="0.1 0.02 0.15" pos="0 -0.62 0.8" material="mat_lcd_display"/>
+             <geom name="fire_suppression_pipe" type="cylinder" size="0.03 4.0" pos="0 0 1.45" euler="0 90 0" material="mat_sinopec_red"/>
+        </body>
+
+        <!-- 2. Work Area (Workbench & Tools) -->
+         <body name="work_area" pos="2.5 -1.5 0.8">
+              <geom name="workbench_top" type="box" size="1.2 0.4 0.05" material="mat_desk_top"/>
+              <geom name="workbench_leg1" type="cylinder" size="0.04 0.275" pos="1.0 0.3 -0.325" material="mat_frame_black"/>
+              <geom name="workbench_leg2" type="cylinder" size="0.04 0.275" pos="-1.0 0.3 -0.325" material="mat_frame_black"/>
+              <geom name="workbench_leg3" type="cylinder" size="0.04 0.275" pos="1.0 -0.3 -0.325" material="mat_frame_black"/>
+              <geom name="workbench_leg4" type="cylinder" size="0.04 0.275" pos="-1.0 -0.3 -0.325" material="mat_frame_black"/>
+              
+              <!-- Tool Wall -->
+             <geom name="tool_board" type="box" size="1.0 0.02 0.6" pos="0 -0.42 0.8" material="mat_metal_grey"/>
+             
+             <!-- Wrench (Detailed) -->
+             <body name="tool_wrench" pos="-0.5 -0.395 0.9" euler="0 0 -15">
+                 <!-- Handle -->
+                 <geom name="wr_handle_main" type="box" size="0.015 0.003 0.08" pos="0 0 0" material="mat_wall_silver"/>
+                 <geom name="wr_handle_end" type="cylinder" size="0.015 0.003" pos="0 0 -0.08" euler="90 0 0" material="mat_wall_silver"/>
+                 <geom name="wr_hole" type="cylinder" size="0.006 0.004" pos="0 0 -0.08" euler="90 0 0" material="mat_frame_black"/> <!-- Hole -->
+                 
+                 <!-- Head Transition -->
+                 <geom name="wr_neck" type="box" size="0.02 0.003 0.02" pos="0 0 0.09" material="mat_wall_silver"/>
+                 
+                 <!-- Fixed Jaw Head -->
+                 <geom name="wr_head" type="box" size="0.035 0.003 0.04" pos="-0.01 0 0.13" euler="0 0 15" material="mat_wall_silver"/>
+                 
+                 <!-- Fixed Jaw Upper -->
+                 <geom name="wr_jaw_fix" type="box" size="0.012 0.003 0.03" pos="-0.025 0 0.15" euler="0 0 15" material="mat_wall_silver"/>
+                 
+                 <!-- Adjustable Jaw -->
+                 <geom name="wr_jaw_adj" type="box" size="0.01 0.004 0.025" pos="0.015 0 0.13" euler="0 0 15" material="mat_wall_silver"/>
+                 <geom name="wr_jaw_track" type="box" size="0.015 0.003 0.01" pos="0.015 0 0.10" euler="0 0 15" material="mat_wall_silver"/>
+                 
+                 <!-- Worm Gear -->
+                 <geom name="wr_worm" type="cylinder" size="0.008 0.015" pos="0.005 0 0.10" euler="0 90 15" material="mat_frame_black"/>
+             </body>
+             
+             <geom name="tool_2" type="box" size="0.05 0.02 0.15" pos="-0.3 -0.39 0.8" material="mat_mechanical_blue"/> <!-- Screwdriver -->
+             
+             <!-- File Cabinet -->
+             <geom name="file_cabinet" type="box" size="0.3 0.3 0.6" pos="1.6 0 -0.2" material="mat_metal_grey"/>
+        </body>
+
+        <!-- 3. Equipment Area (Testing & Safety Gear) -->
+        <body name="equipment_area" pos="-2.5 -1.2 1.0">
+             <geom name="test_console_body" type="box" size="0.4 0.3 0.6" pos="0 0 -0.4" material="mat_frame_black"/>
+             <geom name="test_screen" type="box" size="0.3 0.2 0.02" pos="0 -0.25 0.3" euler="30 0 0" material="mat_screen_glow"/>
+             
+             <!-- Safety Gear Rack -->
+             <geom name="gear_rack" type="box" size="0.6 0.2 0.02" pos="-1.2 0 0.5" material="mat_wall_silver"/>
+             <geom name="helmet" type="sphere" size="0.12" pos="-1.4 0 0.65" material="mat_warning_yellow"/>
+             <geom name="gloves" type="box" size="0.1 0.1 0.05" pos="-1.0 0 0.55" material="mat_sinopec_red"/>
+        </body>
+
+        <!-- 4. Auxiliary Facilities -->
+         <body name="auxiliary_facilities" pos="0 0 2.5">
+              <!-- Emergency Light (Dual Head - High Fidelity) -->
+              <body name="emergency_light" pos="0 -2.0 0.2">
+                  <!-- Main Control Box -->
+                  <geom name="el_box" type="box" size="0.16 0.04 0.08" material="mat_class_wall_white"/>
+                  <!-- Front Panel Label Area -->
+                  <geom name="el_label_area" type="box" size="0.12 0.001 0.05" pos="0 -0.041 0" material="mat_wall_silver"/>
+                  
+                  <!-- Status Indicators (LEDs) -->
+                  <geom name="el_ind_power" type="cylinder" size="0.003 0.002" pos="0.05 -0.042 0.02" euler="90 0 0" material="mat_light_green"/>
+                  <geom name="el_ind_charge" type="cylinder" size="0.003 0.002" pos="0.06 -0.042 0.02" euler="90 0 0" material="mat_light_red"/>
+                  <geom name="el_ind_fault" type="cylinder" size="0.003 0.002" pos="0.07 -0.042 0.02" euler="90 0 0" material="mat_warning_yellow"/>
+
+                  <!-- Left Lamp Head -->
+                  <body name="el_head_l_group" pos="0.08 0 0.11" euler="10 0 0">
+                      <geom name="el_neck_l" type="cylinder" size="0.01 0.04" pos="0 0 -0.03" material="mat_class_wall_white"/>
+                      <geom name="el_shell_l" type="ellipsoid" size="0.05 0.035 0.05" pos="0 0.01 0" material="mat_class_wall_white"/>
+                      <geom name="el_lens_l" type="cylinder" size="0.045 0.002" pos="0 -0.02 0" euler="90 0 0" material="mat_glass"/>
+                      <geom name="el_bulb_l" type="sphere" size="0.015" pos="0 -0.005 0" material="mat_text_white"/>
+                      <geom name="el_rim_l" type="cylinder" size="0.048 0.005" pos="0 -0.015 0" euler="90 0 0" material="mat_class_wall_white"/>
+                  </body>
+
+                  <!-- Right Lamp Head -->
+                  <body name="el_head_r_group" pos="-0.08 0 0.11" euler="10 0 0">
+                      <geom name="el_neck_r" type="cylinder" size="0.01 0.04" pos="0 0 -0.03" material="mat_class_wall_white"/>
+                      <geom name="el_shell_r" type="ellipsoid" size="0.05 0.035 0.05" pos="0 0.01 0" material="mat_class_wall_white"/>
+                      <geom name="el_lens_r" type="cylinder" size="0.045 0.002" pos="0 -0.02 0" euler="90 0 0" material="mat_glass"/>
+                      <geom name="el_bulb_r" type="sphere" size="0.015" pos="0 -0.005 0" material="mat_text_white"/>
+                      <geom name="el_rim_r" type="cylinder" size="0.048 0.005" pos="0 -0.015 0" euler="90 0 0" material="mat_class_wall_white"/>
+                  </body>
+              </body>
+             
+             <!-- Fire Extinguisher (Floor Standing - Detailed) -->
+             <body name="fire_ext_floor" pos="4.5 -1.5 -2.15">
+                  <!-- Tank Body -->
+                  <geom name="fe_body" type="cylinder" size="0.1 0.25" material="mat_sinopec_red"/>
+                  <geom name="fe_dome" type="sphere" size="0.1" pos="0 0 0.25" material="mat_sinopec_red"/>
+                  <geom name="fe_base" type="cylinder" size="0.105 0.02" pos="0 0 -0.25" material="mat_frame_black"/>
+                  
+                  <!-- Label -->
+                  <geom name="fe_label" type="cylinder" size="0.102 0.15" pos="0 0 0.05" material="mat_warning_yellow"/>
+                  
+                  <!-- Valve Assembly -->
+                  <body name="fe_valve_group" pos="0 0 0.35">
+                      <geom name="valve_neck" type="cylinder" size="0.03 0.05" material="mat_wall_silver"/>
+                      <geom name="valve_head" type="box" size="0.04 0.04 0.04" pos="0 0 0.05" material="mat_frame_black"/>
+                      
+                      <!-- Handle (Lever) -->
+                      <geom name="handle_upper" type="box" size="0.08 0.01 0.005" pos="0.06 0 0.08" euler="0 -15 0" material="mat_frame_black"/>
+                      <geom name="handle_lower" type="box" size="0.08 0.01 0.005" pos="0.06 0 0.06" euler="0 -5 0" material="mat_frame_black"/>
+                      
+                      <!-- Pressure Gauge -->
+                      <geom name="gauge_body" type="cylinder" size="0.025 0.01" pos="-0.04 0 0.05" euler="0 90 0" material="mat_wall_silver"/>
+                      <geom name="gauge_face" type="cylinder" size="0.02 0.001" pos="-0.051 0 0.05" euler="0 90 0" material="mat_text_white"/>
+                      
+                      <!-- Safety Pin -->
+                      <geom name="safety_pin" type="cylinder" size="0.002 0.03" pos="0.02 0 0.06" material="mat_warning_yellow"/>
+                      
+                      <!-- Hose -->
+                      <geom name="hose_connector" type="cylinder" size="0.015 0.02" pos="0 0.04 0.05" euler="90 0 0" material="mat_wall_silver"/>
+                      <geom name="hose_tube" type="capsule" size="0.015 0.1" pos="0 0.1 0.02" euler="45 0 0" material="mat_frame_black"/>
+                      <geom name="hose_nozzle" type="cylinder" size="0.02 0.04" pos="0 0.18 -0.06" euler="45 0 0" material="mat_frame_black"/>
+                  </body>
+             </body>
+             
+
         </body>
       </body>
     </body>
@@ -435,24 +579,28 @@
         <!-- Walls -->
         <!-- Front Wall (Blackboard side) -->
         <geom name="class_wall_front" type="box" size="0.1 4.0 1.7" pos="4.9 0 1.8" material="mat_class_wall_white"/>
-        <!-- Back Wall with Door -->
-        <body name="class_wall_back_group" pos="-4.9 0 0">
-            <geom name="cwb_main" type="box" size="0.1 3.0 1.7" pos="0 1.0 1.8" material="mat_class_wall_white"/>
-            <geom name="cwb_small" type="box" size="0.1 0.5 1.7" pos="0 -3.5 1.8" material="mat_class_wall_white"/>
-            <geom name="cwb_header" type="box" size="0.1 0.5 0.65" pos="0 -2.5 2.85" material="mat_class_wall_white"/>
+        <!-- Back Wall (Restored) -->
+        <geom name="class_wall_back" type="box" size="0.1 4.0 1.7" pos="-4.9 0 1.8" material="mat_class_wall_white"/>
+        
+        <!-- Right Wall with Door (Front Side) -->
+        <body name="class_wall_right_group" pos="0 -3.9 0">
+            <!-- Main Wall Section (Back) -->
+            <geom name="cwr_main" type="box" size="4.0 0.1 1.7" pos="-1.0 0 1.8" material="mat_class_wall_white"/>
+            <!-- Small Wall Section (Front) -->
+            <geom name="cwr_front" type="box" size="0.5 0.1 1.7" pos="4.5 0 1.8" material="mat_class_wall_white"/>
+            <!-- Door Header -->
+            <geom name="cwr_header" type="box" size="0.5 0.1 0.65" pos="3.5 0 2.85" material="mat_class_wall_white"/>
             
-            <!-- Classroom Door -->
-            <body name="class_door" pos="0 -2.5 1.1">
-                <geom name="c_door_panel" type="box" size="0.04 0.5 1.1" material="mat_class_floor_wood"/>
-                <geom name="c_door_handle" type="box" size="0.06 0.02 0.05" pos="-0.02 0.4 0" material="mat_frame_black"/>
+            <!-- Classroom Door (Right Wall) -->
+            <body name="class_door_right" pos="3.5 0 1.1">
+                <geom name="c_door_panel_r" type="box" size="0.5 0.04 1.1" material="mat_class_floor_wood"/>
+                <geom name="c_door_handle_r" type="box" size="0.02 0.06 0.05" pos="-0.4 0.02 0" material="mat_frame_black"/>
                 <!-- Door Frame -->
-                <geom name="cdf_top" type="box" size="0.06 0.55 0.05" pos="0 0 1.15" material="mat_frame_black"/>
-                <geom name="cdf_left" type="box" size="0.06 0.05 1.2" pos="0 0.55 0" material="mat_frame_black"/>
-                <geom name="cdf_right" type="box" size="0.06 0.05 1.2" pos="0 -0.55 0" material="mat_frame_black"/>
+                <geom name="cdf_top_r" type="box" size="0.55 0.06 0.05" pos="0 0 1.15" material="mat_frame_black"/>
+                <geom name="cdf_left_r" type="box" size="0.05 0.06 1.2" pos="-0.55 0 0" material="mat_frame_black"/>
+                <geom name="cdf_right_r" type="box" size="0.05 0.06 1.2" pos="0.55 0 0" material="mat_frame_black"/>
             </body>
         </body>
-        <!-- Right Wall (Solid) -->
-        <geom name="class_wall_right" type="box" size="5.0 0.1 1.7" pos="0 -3.9 1.8" material="mat_class_wall_white"/>
         <!-- Left Wall (Windows) -->
         <body name="class_wall_left_windows" pos="0 3.9 1.8">
             <geom name="w_l_bottom" type="box" size="5.0 0.1 0.5" pos="0 0 -1.2" material="mat_class_wall_white"/>
@@ -492,6 +640,39 @@
                 <geom name="c_stick_c2" type="cylinder" size="0.004 0.02" pos="0 -0.15 0.02" euler="0 90 0" rgba="0.5 1 0.5 1"/>
                 <geom name="c_stick_c3" type="cylinder" size="0.004 0.02" pos="0 -0.17 0.02" euler="0 90 0" rgba="0.5 0.5 1 1"/>
             </body>
+        </body>
+
+        <!-- Fire Extinguisher (Classroom) -->
+         <body name="class_fire_ext" pos="4.5 -3.5 0.35">
+              <!-- Tank Body -->
+              <geom name="cfe_body" type="cylinder" size="0.1 0.25" material="mat_sinopec_red"/>
+             <geom name="cfe_dome" type="sphere" size="0.1" pos="0 0 0.25" material="mat_sinopec_red"/>
+             <geom name="cfe_base" type="cylinder" size="0.105 0.02" pos="0 0 -0.25" material="mat_frame_black"/>
+             
+             <!-- Label -->
+             <geom name="cfe_label" type="cylinder" size="0.102 0.15" pos="0 0 0.05" material="mat_warning_yellow"/>
+             
+             <!-- Valve Assembly -->
+             <body name="cfe_valve_group" pos="0 0 0.35">
+                 <geom name="c_valve_neck" type="cylinder" size="0.03 0.05" material="mat_wall_silver"/>
+                 <geom name="c_valve_head" type="box" size="0.04 0.04 0.04" pos="0 0 0.05" material="mat_frame_black"/>
+                 
+                 <!-- Handle (Lever) -->
+                 <geom name="c_handle_upper" type="box" size="0.08 0.01 0.005" pos="0.06 0 0.08" euler="0 -15 0" material="mat_frame_black"/>
+                 <geom name="c_handle_lower" type="box" size="0.08 0.01 0.005" pos="0.06 0 0.06" euler="0 -5 0" material="mat_frame_black"/>
+                 
+                 <!-- Pressure Gauge -->
+                 <geom name="c_gauge_body" type="cylinder" size="0.025 0.01" pos="-0.04 0 0.05" euler="0 90 0" material="mat_wall_silver"/>
+                 <geom name="c_gauge_face" type="cylinder" size="0.02 0.001" pos="-0.051 0 0.05" euler="0 90 0" material="mat_text_white"/>
+                 
+                 <!-- Safety Pin -->
+                 <geom name="c_safety_pin" type="cylinder" size="0.002 0.03" pos="0.02 0 0.06" material="mat_warning_yellow"/>
+                 
+                 <!-- Hose -->
+                 <geom name="c_hose_connector" type="cylinder" size="0.015 0.02" pos="0 0.04 0.05" euler="90 0 0" material="mat_wall_silver"/>
+                 <geom name="c_hose_tube" type="capsule" size="0.015 0.1" pos="0 0.1 0.02" euler="45 0 0" material="mat_frame_black"/>
+                 <geom name="c_hose_nozzle" type="cylinder" size="0.02 0.04" pos="0 0.18 -0.06" euler="45 0 0" material="mat_frame_black"/>
+             </body>
         </body>
 
         <!-- Desks and Chairs Rows -->
